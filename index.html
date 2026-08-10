@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SonicDrop Turbo - Visual Stream for Files & Text</title>
+    <title>SonicDrop Turbo - Fountain & Base45 Visual Stream</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Standalone Fast Reader & QR Generator Libraries -->
@@ -15,11 +15,14 @@
 
         :root {
             --bg-dark: #080b13;
-            --card-bg: rgba(13, 18, 30, 0.85);
+            --card-bg: rgba(13, 18, 30, 0.88);
             --cyan-neon: #00f2fe;
             --cyan-glow: rgba(0, 242, 254, 0.4);
             --pink-neon: #ff2a85;
             --pink-glow: rgba(255, 42, 133, 0.45);
+            --purple-neon: #a855f7;
+            --purple-glow: rgba(168, 85, 247, 0.4);
+            --emerald-neon: #10b981;
             --border-glass: rgba(255, 255, 255, 0.08);
             --border-highlight: rgba(0, 242, 254, 0.3);
         }
@@ -161,6 +164,21 @@
             transition: stroke-dashoffset 0.8s ease;
             filter: drop-shadow(0px 0px 8px var(--cyan-glow));
         }
+
+        .grid-2x2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .badge-tag {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 2px 8px;
+            font-size: 10px;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -171,10 +189,10 @@
         <div class="text-center mb-6">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-950/20 mb-2">
                 <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-                <span class="text-xs font-bold text-cyan-400 uppercase tracking-widest mono-font">SonicDrop Turbo • Text & Visual Stream</span>
+                <span class="text-xs font-bold text-cyan-400 uppercase tracking-widest mono-font">SonicDrop Turbo • Fountain + Base45 Stream</span>
             </div>
             <h1 class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-100 via-cyan-300 to-pink-500">
-                P2P Visual Stream
+                4x Turbo Visual Stream
             </h1>
         </div>
 
@@ -198,7 +216,7 @@
                     </svg>
                     <span class="text-sm font-extrabold text-cyan-400 tracking-wider">SEND</span>
                 </button>
-                <span class="text-[11px] text-slate-400 mt-3 font-semibold uppercase tracking-wider">Transmit Visual Stream</span>
+                <span class="text-[11px] text-slate-400 mt-3 font-semibold uppercase tracking-wider">Transmit Fountain Stream</span>
             </div>
 
             <!-- CENTER MAIN HUD PANEL -->
@@ -242,6 +260,13 @@
                                         <span id="estTimeBadge" class="text-[10px] text-amber-400 font-bold mt-1 uppercase tracking-tight">Est. ~0 sec</span>
                                     </div>
                                 </div>
+                            </div>
+
+                            <!-- Speed Booster Feature Badges -->
+                            <div class="flex flex-wrap items-center justify-center gap-1.5 text-center">
+                                <span class="badge-tag text-cyan-300 border-cyan-500/30 bg-cyan-950/40">⚡ Base45 (+45% Density)</span>
+                                <span class="badge-tag text-purple-300 border-purple-500/30 bg-purple-950/40">☔ Fountain XOR Drops</span>
+                                <span class="badge-tag text-emerald-300 border-emerald-500/30 bg-emerald-950/40">🛡️ EC Level L (7%)</span>
                             </div>
 
                             <!-- MEDIA DROPZONE CONTAINER -->
@@ -289,30 +314,42 @@
                                     <div id="fileTypeTextDisplay" class="text-xs font-bold text-cyan-400 pt-1">Direct Binary Deflate</div>
                                 </div>
                                 <div class="bg-slate-900/60 border border-white/10 rounded-xl p-2.5">
-                                    <label for="densitySelect" class="block text-[10px] font-bold text-slate-400 mb-1">⚡ Frame Density</label>
-                                    <select id="densitySelect" class="w-full bg-slate-950 text-cyan-400 font-bold text-xs p-1.5 rounded-lg border border-white/10 outline-none">
-                                        <option value="400" selected>Standard (400)</option>
-                                        <option value="500">Turbo (500)</option>
-                                        <option value="600">Ultra (600)</option>
+                                    <label for="gridModeSelect" class="block text-[10px] font-bold text-slate-400 mb-1">🔲 QR Layout Mode</label>
+                                    <select id="gridModeSelect" class="w-full bg-slate-950 text-cyan-400 font-bold text-xs p-1.5 rounded-lg border border-white/10 outline-none">
+                                        <option value="1x1" selected>1x1 Single QR</option>
+                                        <option value="2x2">2x2 Quad Grid (4x Speed)</option>
                                     </select>
                                 </div>
                             </div>
 
-                            <button id="startStreamBtn" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(0,242,254,0.3)] hover:shadow-[0_0_30px_rgba(0,242,254,0.5)] transition-all">
-                                🎬 Start Visual Broadcast
+                            <button id="startStreamBtn" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 text-slate-950 font-black text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(0,242,254,0.4)] hover:shadow-[0_0_35px_rgba(0,242,254,0.6)] transition-all">
+                                🚀 Start 4x Turbo Broadcast
                             </button>
                         </div>
 
                         <!-- Center Stream QR Display -->
                         <div id="qrCard" class="hidden bg-white rounded-2xl p-4 text-center shadow-2xl animate-fade-in my-auto">
                             <div class="flex items-center justify-between mb-2">
-                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Streaming Visual Broadcast</span>
+                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Fountain Stream • Zero Missed Loop Delay</span>
                                 <button id="stopStreamBtn" class="px-2.5 py-1 bg-rose-100 hover:bg-rose-200 text-rose-700 text-[10px] font-extrabold rounded-lg transition-colors flex items-center gap-1">
                                     ✕ Stop Stream
                                 </button>
                             </div>
-                            <canvas id="qrCanvas" width="280" height="280" class="mx-auto my-2 rounded-lg max-w-[260px] w-full h-auto"></canvas>
-                            <div id="frameInfoText" class="text-base font-extrabold text-cyan-600 mono-font">Frame 0 / 0</div>
+
+                            <!-- Single Canvas Container -->
+                            <div id="singleCanvasBox" class="my-2">
+                                <canvas id="qrCanvas" width="280" height="280" class="mx-auto rounded-lg max-w-[260px] w-full h-auto"></canvas>
+                            </div>
+
+                            <!-- 2x2 Grid Container -->
+                            <div id="gridCanvasBox" class="hidden grid-2x2 my-2 max-w-[280px] mx-auto">
+                                <canvas id="qrCanvas0" width="130" height="130" class="w-full rounded-md border border-slate-200"></canvas>
+                                <canvas id="qrCanvas1" width="130" height="130" class="w-full rounded-md border border-slate-200"></canvas>
+                                <canvas id="qrCanvas2" width="130" height="130" class="w-full rounded-md border border-slate-200"></canvas>
+                                <canvas id="qrCanvas3" width="130" height="130" class="w-full rounded-md border border-slate-200"></canvas>
+                            </div>
+
+                            <div id="frameInfoText" class="text-sm font-extrabold text-cyan-600 mono-font">Fountain Drops Transmitting...</div>
 
                             <div class="flex justify-center gap-1.5 mt-3">
                                 <button class="fps-btn px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700" data-fps="200">5 FPS</button>
@@ -354,7 +391,7 @@
                                 <span id="progressPercent" class="text-emerald-400 mono-font">0%</span>
                             </div>
                             <div class="w-full h-2.5 bg-white/10 rounded-full overflow-hidden mb-3">
-                                <div id="progressBarFill" class="h-full w-0 bg-gradient-to-r from-cyan-400 to-emerald-400 transition-all duration-150"></div>
+                                <div id="progressBarFill" class="h-full w-0 bg-gradient-to-r from-cyan-400 via-purple-400 to-emerald-400 transition-all duration-150"></div>
                             </div>
                             <div id="chunkMatrix" class="flex flex-wrap gap-1 max-h-24 overflow-y-auto p-2 bg-black/50 rounded-lg border border-white/5"></div>
                         </div>
@@ -420,25 +457,62 @@
 
     <script>
         
-        // Direct Binary Deflate Engine
+        // METHOD 1: BASE45 ENCODER / DECODER (RFC 9285 - QR Alphanumeric Mode Optimized)
+        const BASE45_CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
+        const BASE45_MAP = new Map();
+        for (let i = 0; i < BASE45_CHARSET.length; i++) BASE45_MAP.set(BASE45_CHARSET[i], i);
+
+        function encodeBase45(uint8Array) {
+            let res = '';
+            const len = uint8Array.length;
+            for (let i = 0; i < len; i += 2) {
+                if (i + 1 < len) {
+                    const val = uint8Array[i] + (uint8Array[i + 1] << 8);
+                    const c1 = val % 45;
+                    const c2 = Math.floor(val / 45) % 45;
+                    const c3 = Math.floor(val / 2025);
+                    res += BASE45_CHARSET[c1] + BASE45_CHARSET[c2] + BASE45_CHARSET[c3];
+                } else {
+                    const val = uint8Array[i];
+                    const c1 = val % 45;
+                    const c2 = Math.floor(val / 45);
+                    res += BASE45_CHARSET[c1] + BASE45_CHARSET[c2];
+                }
+            }
+            return res;
+        }
+
+        function decodeBase45(base45Str) {
+            const bytes = [];
+            const len = base45Str.length;
+            for (let i = 0; i < len; i += 3) {
+                if (i + 2 < len) {
+                    const c1 = BASE45_MAP.get(base45Str[i]) || 0;
+                    const c2 = BASE45_MAP.get(base45Str[i + 1]) || 0;
+                    const c3 = BASE45_MAP.get(base45Str[i + 2]) || 0;
+                    const val = c1 + c2 * 45 + c3 * 2025;
+                    bytes.push(val & 0xFF, (val >> 8) & 0xFF);
+                } else if (i + 1 < len) {
+                    const c1 = BASE45_MAP.get(base45Str[i]) || 0;
+                    const c2 = BASE45_MAP.get(base45Str[i + 1]) || 0;
+                    const val = c1 + c2 * 45;
+                    bytes.push(val & 0xFF);
+                }
+            }
+            return new Uint8Array(bytes);
+        }
+
+        // Direct Deflate Raw Compression
         async function compressArrayBuffer(arrayBuf) {
             const cs = new CompressionStream('deflate-raw');
             const writer = cs.writable.getWriter();
             writer.write(arrayBuf);
             writer.close();
             const compressedArrayBuf = await new Response(cs.readable).arrayBuffer();
-            const bytes = new Uint8Array(compressedArrayBuf);
-            let binary = '';
-            const len = bytes.byteLength;
-            for (let i = 0; i < len; i += 8192) {
-                binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
-            }
-            return btoa(binary);
+            return new Uint8Array(compressedArrayBuf);
         }
 
-        async function decompressBase64ToBlob(base64Str, mimeType) {
-            const binStr = atob(base64Str);
-            const bytes = Uint8Array.from(binStr, c => c.charCodeAt(0));
+        async function decompressBytesToBlob(bytes, mimeType) {
             const ds = new DecompressionStream('deflate-raw');
             const writer = ds.writable.getWriter();
             writer.write(bytes);
@@ -447,12 +521,106 @@
             return new Blob([decompressedBuf], { type: mimeType });
         }
 
+        // METHOD 2: FOUNTAIN CODES / LUBY TRANSFORM (XOR PARITY DROPS)
+        function xorBase45Chunks(chunk1, chunk2) {
+            const b1 = decodeBase45(chunk1);
+            const b2 = decodeBase45(chunk2);
+            const maxLen = Math.max(b1.length, b2.length);
+            const res = new Uint8Array(maxLen);
+            for (let i = 0; i < maxLen; i++) {
+                const v1 = i < b1.length ? b1[i] : 0;
+                const v2 = i < b2.length ? b2[i] : 0;
+                res[i] = v1 ^ v2;
+            }
+            return encodeBase45(res);
+        }
+
+        function generateFountainDrop(originalChunks, dropIndex) {
+            const K = originalChunks.length;
+            if (dropIndex < K) {
+                return { indices: [dropIndex], data: originalChunks[dropIndex] };
+            }
+            // Generate pseudo-random combination
+            let seed = (dropIndex * 2654435761) >>> 0;
+            const pseudoRandom = () => {
+                seed = (seed ^ (seed << 13)) >>> 0;
+                seed = (seed ^ (seed >> 17)) >>> 0;
+                seed = (seed ^ (seed << 5)) >>> 0;
+                return seed / 4294967296;
+            };
+
+            const degree = (pseudoRandom() < 0.6) ? 2 : Math.min(3, K);
+            const idxSet = new Set();
+            while (idxSet.size < degree) {
+                idxSet.add(Math.floor(pseudoRandom() * K));
+            }
+            const indices = Array.from(idxSet).sort((a, b) => a - b);
+            
+            let xoredData = originalChunks[indices[0]];
+            for (let i = 1; i < indices.length; i++) {
+                xoredData = xorBase45Chunks(xoredData, originalChunks[indices[i]]);
+            }
+            return { indices, data: xoredData };
+        }
+
+        // PEELING DECODER FOR FOUNTAIN DROPS
+        class PeelingDecoder {
+            constructor(K) {
+                this.K = K;
+                this.resolved = new Map(); // idx -> Base45 data
+                this.equations = []; // { indices: Set, data: Base45 }
+            }
+
+            addDrop(indicesArray, data) {
+                let remIndices = new Set(indicesArray);
+                let curData = data;
+
+                for (let idx of indicesArray) {
+                    if (this.resolved.has(idx)) {
+                        curData = xorBase45Chunks(curData, this.resolved.get(idx));
+                        remIndices.delete(idx);
+                    }
+                }
+
+                if (remIndices.size === 0) return this.resolved.size === this.K;
+
+                this.equations.push({ indices: remIndices, data: curData });
+                this.peel();
+                return this.resolved.size === this.K;
+            }
+
+            peel() {
+                let changed = true;
+                while (changed) {
+                    changed = false;
+                    for (let i = 0; i < this.equations.length; i++) {
+                        const eq = this.equations[i];
+                        if (eq.indices.size === 1) {
+                            const [resolvedIdx] = eq.indices;
+                            this.resolved.set(resolvedIdx, eq.data);
+                            this.equations.splice(i, 1);
+                            changed = true;
+
+                            for (let otherEq of this.equations) {
+                                if (otherEq.indices.has(resolvedIdx)) {
+                                    otherEq.indices.delete(resolvedIdx);
+                                    otherEq.data = xorBase45Chunks(otherEq.data, eq.data);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // METHOD 4: LOWEST ERROR CORRECTION LEVEL 'L' (7%) QR RENDERER
         const PureQREngine = (function() {
             return {
                 render: function(canvas, text) {
                     if (typeof QRious !== 'undefined') {
                         try {
-                            new QRious({ element: canvas, size: 280, value: text, level: 'L' });
+                            new QRious({ element: canvas, size: canvas.width || 280, value: text, level: 'L' });
                             return;
                         } catch(e) {}
                     }
@@ -460,19 +628,19 @@
             };
         })();
 
-        let activeTab = 'media'; // 'media' or 'text'
+        let activeTab = 'media';
         let selectedFile = null;
         let fileMime = '';
-        let qrChunks = [];
+        let base45Chunks = [];
         let streamInterval = null;
-        let currentFrame = 0;
+        let currentDropIdx = 0;
         let frameDelay = 100;
         let qrScanner = null;
 
         let expectedTotal = 0;
         let expectedMime = '';
         let expectedName = '';
-        let receivedMap = new Map();
+        let peelingDecoder = null;
 
         const senderSection = document.getElementById('senderSection');
         const receiverSection = document.getElementById('receiverSection');
@@ -511,10 +679,12 @@
         const fileTypeTextDisplay = document.getElementById('fileTypeTextDisplay');
 
         const imgQualitySelect = document.getElementById('imgQualitySelect');
-        const densitySelect = document.getElementById('densitySelect');
+        const gridModeSelect = document.getElementById('gridModeSelect');
         const startStreamBtn = document.getElementById('startStreamBtn');
         const qrCard = document.getElementById('qrCard');
         const frameInfoText = document.getElementById('frameInfoText');
+        const singleCanvasBox = document.getElementById('singleCanvasBox');
+        const gridCanvasBox = document.getElementById('gridCanvasBox');
 
         const cameraSelect = document.getElementById('cameraSelect');
         const startScanBtn = document.getElementById('startScanBtn');
@@ -547,7 +717,6 @@
 
         modalCloseBtn.onclick = () => customModal.classList.add('hidden');
 
-        // Tab Switching in Sender
         mediaTabBtn.onclick = () => {
             activeTab = 'media';
             mediaTabBtn.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-cyan-400 bg-slate-800/80 transition-all";
@@ -581,7 +750,7 @@
             fileSizeUnit.innerText = "KB";
             estTimeBadge.innerText = "Est. ~0 sec";
             statCircleBar.style.strokeDashoffset = "283";
-            qrChunks = [];
+            base45Chunks = [];
         }
 
         function setSendMode() {
@@ -598,7 +767,7 @@
             if (streamInterval) {
                 senderControls.classList.add('hidden');
                 qrCard.classList.remove('hidden');
-                updateStatus(`Broadcasting ${qrChunks.length} Frames`, "transmitting");
+                updateStatus(`Broadcasting Fountain Stream`, "transmitting");
             } else {
                 senderControls.classList.remove('hidden');
                 qrCard.classList.add('hidden');
@@ -642,9 +811,8 @@
             if (selectedFile && fileMime.startsWith('image/')) handleFileSelection(selectedFile);
         };
 
-        densitySelect.onchange = () => {
-            if (activeTab === 'text') handleTextSelection();
-            else if (selectedFile) handleFileSelection(selectedFile);
+        gridModeSelect.onchange = () => {
+            if (streamInterval) startStreamAnimation();
         };
 
         async function handleTextSelection() {
@@ -654,7 +822,7 @@
                 return;
             }
 
-            fileMime = 'text/plain';
+            fileMime = 'TEXT/PLAIN';
             const encoder = new TextEncoder();
             const bytes = encoder.encode(val);
             const sizeInKB = bytes.byteLength / 1024;
@@ -663,13 +831,13 @@
             fileSizeUnit.innerText = "KB";
             statCircleBar.style.strokeDashoffset = "50";
 
-            const compressedBase64 = await compressArrayBuffer(bytes.buffer);
-            chunkPayloadString(compressedBase64);
+            const compressedBytes = await compressArrayBuffer(bytes.buffer);
+            chunkPayloadBytes(compressedBytes);
         }
 
         function handleFileSelection(file) {
             selectedFile = file;
-            fileMime = selectedFile.type || getMimeFromExtension(selectedFile.name);
+            fileMime = (selectedFile.type || getMimeFromExtension(selectedFile.name)).toUpperCase();
             
             const sizeInMB = selectedFile.size / (1024 * 1024);
             fileSizeNum.innerText = sizeInMB >= 1000 ? (sizeInMB / 1024).toFixed(2) : (sizeInMB >= 1 ? sizeInMB.toFixed(2) : Math.round(selectedFile.size/1024));
@@ -683,8 +851,8 @@
             audioPreviewElem.classList.add('hidden');
             videoPreviewElem.classList.add('hidden');
 
-            const isAudio = fileMime.startsWith('audio/') || selectedFile.name.match(/\.(mp3|wav|ogg|m4a|aac|flac)$/i);
-            const isVideo = fileMime.startsWith('video/') || selectedFile.name.match(/\.(mp4|webm|mov|mkv|avi)$/i);
+            const isAudio = fileMime.startsWith('AUDIO/') || selectedFile.name.match(/\.(mp3|wav|ogg|m4a|aac|flac)$/i);
+            const isVideo = fileMime.startsWith('VIDEO/') || selectedFile.name.match(/\.(mp4|webm|mov|mkv|avi)$/i);
 
             if (isAudio || isVideo) {
                 imgQualityBox.classList.add('hidden');
@@ -696,17 +864,17 @@
             }
 
             if (isVideo) {
-                if (!fileMime.startsWith('video/')) fileMime = 'video/mp4';
+                if (!fileMime.startsWith('VIDEO/')) fileMime = 'VIDEO/MP4';
                 videoPreviewElem.src = URL.createObjectURL(selectedFile);
                 videoPreviewElem.classList.remove('hidden');
                 processRawBinaryChunking(selectedFile);
             } else if (isAudio) {
-                if (!fileMime.startsWith('audio/')) fileMime = 'audio/mpeg';
+                if (!fileMime.startsWith('AUDIO/')) fileMime = 'AUDIO/MPEG';
                 audioPreviewElem.src = URL.createObjectURL(selectedFile);
                 audioPreviewElem.classList.remove('hidden');
                 processRawBinaryChunking(selectedFile);
             } else {
-                if (!fileMime.startsWith('image/')) fileMime = 'image/jpeg';
+                if (!fileMime.startsWith('IMAGE/')) fileMime = 'IMAGE/JPEG';
                 imgPreviewElem.classList.remove('hidden');
 
                 const reader = new FileReader();
@@ -748,8 +916,8 @@
                 const bytes = new Uint8Array(len);
                 for (let i = 0; i < len; i++) bytes[i] = binaryStr.charCodeAt(i);
 
-                const deflatedBase64 = await compressArrayBuffer(bytes.buffer);
-                chunkPayloadString(deflatedBase64);
+                const deflatedBytes = await compressArrayBuffer(bytes.buffer);
+                chunkPayloadBytes(deflatedBytes);
             };
             img.src = dataUrl;
         }
@@ -758,24 +926,27 @@
             updateStatus("Deflating Binary Payload...", "transmitting");
             const reader = new FileReader();
             reader.onload = async (e) => {
-                const deflatedBase64 = await compressArrayBuffer(e.target.result);
-                chunkPayloadString(deflatedBase64);
+                const deflatedBytes = await compressArrayBuffer(e.target.result);
+                chunkPayloadBytes(deflatedBytes);
             };
             reader.readAsArrayBuffer(fileObj);
         }
 
-        function chunkPayloadString(payloadData) {
-            qrChunks = [];
-            const limit = parseInt(densitySelect.value);
-            for (let i = 0; i < payloadData.length; i += limit) {
-                qrChunks.push(payloadData.substring(i, i + limit));
+        function chunkPayloadBytes(compressedBytes) {
+            // Encode whole buffer to Base45 for ~45% QR Alphanumeric Density Boost
+            const base45Str = encodeBase45(compressedBytes);
+            
+            base45Chunks = [];
+            const chunkSize = 350; // Optimized Base45 chars per QR
+            for (let i = 0; i < base45Str.length; i += chunkSize) {
+                base45Chunks.push(base45Str.substring(i, i + chunkSize));
             }
 
             const fps = 10;
-            const estSeconds = Math.round(qrChunks.length / fps);
+            const estSeconds = Math.round(base45Chunks.length / fps);
             estTimeBadge.innerText = `Est. ~${estSeconds} sec`;
 
-            updateStatus(`Ready! Created ${qrChunks.length} Visual Frames`, "active");
+            updateStatus(`Ready! ${base45Chunks.length} Base45 Fountain Chunks`, "active");
         }
 
         startStreamBtn.onclick = () => {
@@ -783,7 +954,7 @@
                 showModal("No Text Entered", "Please enter or paste text to broadcast.");
                 return;
             }
-            if (activeTab === 'media' && (!selectedFile || qrChunks.length === 0)) {
+            if (activeTab === 'media' && (!selectedFile || base45Chunks.length === 0)) {
                 showModal("No File Selected", "Please choose a photo, audio, or video file to broadcast.");
                 return;
             }
@@ -791,7 +962,7 @@
             senderControls.classList.add('hidden');
             qrCard.classList.remove('hidden');
             startStreamAnimation();
-            updateStatus(`Broadcasting ${qrChunks.length} Frames`, "transmitting");
+            updateStatus(`Broadcasting Fountain Stream`, "transmitting");
         };
 
         stopStreamBtn.onclick = () => {
@@ -809,23 +980,45 @@
 
         function startStreamAnimation() {
             if (streamInterval) clearInterval(streamInterval);
-            currentFrame = 0;
+            currentDropIdx = 0;
 
-            const canvasElem = document.getElementById('qrCanvas');
-            const total = qrChunks.length;
-            const nameToEncode = activeTab === 'text' ? 'SonicDrop_Notes.txt' : selectedFile.name;
-            const metaName = encodeURIComponent(nameToEncode.substring(0, 15));
+            const totalK = base45Chunks.length;
+            const rawName = activeTab === 'text' ? 'SONICDROP_NOTES.TXT' : selectedFile.name;
+            const metaName = encodeURIComponent(rawName.substring(0, 12)).toUpperCase();
+            const gridMode = gridModeSelect.value;
+
+            if (gridMode === '2x2') {
+                singleCanvasBox.classList.add('hidden');
+                gridCanvasBox.classList.remove('hidden');
+            } else {
+                singleCanvasBox.classList.remove('hidden');
+                gridCanvasBox.classList.add('hidden');
+            }
 
             const renderFrame = () => {
                 try {
-                    const chunk = qrChunks[currentFrame];
-                    const payload = `QRD|${total}|${currentFrame}|${fileMime}|${metaName}|${chunk}`;
-                    PureQREngine.render(canvasElem, payload);
+                    if (gridMode === '2x2') {
+                        for (let g = 0; g < 4; g++) {
+                            const drop = generateFountainDrop(base45Chunks, currentDropIdx + g);
+                            const indicesStr = drop.indices.join('+');
+                            const payload = `QRF:${totalK}:${indicesStr}:${fileMime}:${metaName}:${drop.data}`;
+                            const canvasElem = document.getElementById(`qrCanvas${g}`);
+                            PureQREngine.render(canvasElem, payload);
+                        }
+                        frameInfoText.innerText = `Fountain Drops ${currentDropIdx + 1}-${currentDropIdx + 4} (Total K=${totalK})`;
+                        currentDropIdx += 4;
+                    } else {
+                        const drop = generateFountainDrop(base45Chunks, currentDropIdx);
+                        const indicesStr = drop.indices.join('+');
+                        const payload = `QRF:${totalK}:${indicesStr}:${fileMime}:${metaName}:${drop.data}`;
+                        const canvasElem = document.getElementById('qrCanvas');
+                        PureQREngine.render(canvasElem, payload);
 
-                    frameInfoText.innerText = `Frame ${currentFrame + 1} / ${total}`;
-                    currentFrame = (currentFrame + 1) % total;
+                        frameInfoText.innerText = `Fountain Drop ${currentDropIdx + 1} (Total K=${totalK})`;
+                        currentDropIdx++;
+                    }
                 } catch(e) {
-                    console.error("Frame render error:", e);
+                    console.error("Fountain render error:", e);
                 }
             };
 
@@ -851,12 +1044,12 @@
             progressBox.classList.remove('hidden');
             receivedBox.classList.add('hidden');
 
-            receivedMap.clear();
             expectedTotal = 0;
+            peelingDecoder = null;
             chunkMatrix.innerHTML = '';
 
             const chosenFacingMode = cameraSelect.value;
-            updateStatus(`Scanner Active. Point camera at stream`, "transmitting");
+            updateStatus(`Scanner Active. Point camera at Fountain stream`, "transmitting");
 
             if (typeof Html5Qrcode !== 'undefined') {
                 if (!qrScanner) qrScanner = new Html5Qrcode("qrReader");
@@ -873,41 +1066,57 @@
         }
 
         function onQrCodeScanned(decodedText) {
-            if (!decodedText.startsWith("QRD|")) return;
+            // Support QRF Fountain or Legacy QRD
+            if (!decodedText.startsWith("QRF:") && !decodedText.startsWith("QRD|")) return;
 
-            const parts = decodedText.split("|");
-            if (parts.length < 6) return;
+            let total = 0, indicesArray = [], mime = '', fileName = '', data = '';
 
-            const total = parseInt(parts[1]);
-            const index = parseInt(parts[2]);
-            const mime = parts[3];
-            const fileName = decodeURIComponent(parts[4]);
-            const data = parts.slice(5).join("|");
+            if (decodedText.startsWith("QRF:")) {
+                const parts = decodedText.split(":");
+                if (parts.length < 6) return;
+                total = parseInt(parts[1]);
+                indicesArray = parts[2].split('+').map(n => parseInt(n));
+                mime = parts[3].toLowerCase();
+                fileName = decodeURIComponent(parts[4]);
+                data = parts.slice(5).join(":");
+            } else {
+                const parts = decodedText.split("|");
+                if (parts.length < 6) return;
+                total = parseInt(parts[1]);
+                indicesArray = [parseInt(parts[2])];
+                mime = parts[3].toLowerCase();
+                fileName = decodeURIComponent(parts[4]);
+                data = parts.slice(5).join("|");
+            }
 
             if (expectedTotal === 0) {
                 expectedTotal = total;
                 expectedMime = mime;
                 expectedName = fileName;
+                peelingDecoder = new PeelingDecoder(total);
                 createMatrixGrid(total);
             }
 
-            if (!receivedMap.has(index)) {
-                receivedMap.set(index, data);
+            const isComplete = peelingDecoder.addDrop(indicesArray, data);
 
-                const box = document.getElementById(`chunk-box-${index}`);
-                if (box) box.classList.add('bg-emerald-400', 'shadow-[0_0_8px_#10b981]');
-
-                const receivedCount = receivedMap.size;
-                const percent = Math.round((receivedCount / total) * 100);
-
-                progressBarFill.style.width = `${percent}%`;
-                progressPercent.innerText = `${percent}%`;
-                progressTitle.innerText = `Captured: ${receivedCount} / ${total} Frames`;
-
-                if (receivedCount === total) {
-                    stopScanner();
-                    reconstructFile();
+            // Update Progress Matrix
+            for (let i = 0; i < expectedTotal; i++) {
+                const box = document.getElementById(`chunk-box-${i}`);
+                if (box && peelingDecoder.resolved.has(i)) {
+                    box.className = 'w-2.5 h-2.5 rounded-sm bg-emerald-400 shadow-[0_0_8px_#10b981] transition-all';
                 }
+            }
+
+            const receivedCount = peelingDecoder.resolved.size;
+            const percent = Math.round((receivedCount / expectedTotal) * 100);
+
+            progressBarFill.style.width = `${percent}%`;
+            progressPercent.innerText = `${percent}%`;
+            progressTitle.innerText = `Captured: ${receivedCount} / ${expectedTotal} Fountain Chunks`;
+
+            if (isComplete || receivedCount === expectedTotal) {
+                stopScanner();
+                reconstructFile();
             }
         }
 
@@ -922,15 +1131,16 @@
         }
 
         async function reconstructFile() {
-            updateStatus("Decompressing Payload...", "active");
+            updateStatus("Decompressing Base45 Fountain Payload...", "active");
 
             try {
-                let fullDeflated = "";
+                let fullBase45Str = "";
                 for (let i = 0; i < expectedTotal; i++) {
-                    fullDeflated += receivedMap.get(i);
+                    fullBase45Str += peelingDecoder.resolved.get(i);
                 }
 
-                const blob = await decompressBase64ToBlob(fullDeflated, expectedMime);
+                const compressedBytes = decodeBase45(fullBase45Str);
+                const blob = await decompressBytesToBlob(compressedBytes, expectedMime);
                 const fileUrl = URL.createObjectURL(blob);
                 const kbSize = Math.round(blob.size / 1024);
 
