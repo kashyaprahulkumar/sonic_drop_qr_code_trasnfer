@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SonicDrop Turbo - Visual Stream for Photos, Audio & Video</title>
+    <title>SonicDrop Turbo - Visual Stream for Files & Text</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Standalone Fast Reader & QR Generator Libraries -->
@@ -60,7 +60,6 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
         }
 
-        /* Circular Glow Buttons */
         .btn-circle-send {
             width: 130px;
             height: 130px;
@@ -172,7 +171,7 @@
         <div class="text-center mb-6">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-950/20 mb-2">
                 <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-                <span class="text-xs font-bold text-cyan-400 uppercase tracking-widest mono-font">SonicDrop Turbo • Visual Stream</span>
+                <span class="text-xs font-bold text-cyan-400 uppercase tracking-widest mono-font">SonicDrop Turbo • Text & Visual Stream</span>
             </div>
             <h1 class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-100 via-cyan-300 to-pink-500">
                 P2P Visual Stream
@@ -211,14 +210,25 @@
                             <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#00f2fe]"></div>
                             <span id="modeTitle" class="text-xs font-extrabold text-cyan-400 tracking-wider uppercase mono-font">SEND MODE ACTIVE</span>
                         </div>
-                        <span id="statusText" class="text-[11px] text-slate-400 font-medium truncate max-w-[200px]">Select file to broadcast</span>
+                        <span id="statusText" class="text-[11px] text-slate-400 font-medium truncate max-w-[200px]">Select media or enter text</span>
                     </div>
 
                     <!-- SENDER SECTION -->
                     <div id="senderSection" class="space-y-4">
                         
+                        <!-- Input Type Selector Tabs -->
+                        <div class="flex bg-slate-950 p-1 rounded-xl border border-white/10">
+                            <button id="mediaTabBtn" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-cyan-400 bg-slate-800/80 transition-all">
+                                📁 File / Media
+                            </button>
+                            <button id="textTabBtn" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition-all">
+                                📝 Text / URL
+                            </button>
+                        </div>
+
                         <!-- Sender Setup Controls -->
                         <div id="senderControls" class="space-y-4">
+                            
                             <!-- Circular Gauge & Time Estimate -->
                             <div class="flex items-center justify-center my-2 relative">
                                 <div class="relative w-36 h-36 flex items-center justify-center">
@@ -228,50 +238,62 @@
                                     </svg>
                                     <div class="absolute text-center flex flex-col items-center justify-center">
                                         <span id="fileSizeNum" class="text-2xl font-black text-cyan-400 mono-font leading-none">0.00</span>
-                                        <span id="fileSizeUnit" class="text-xs font-extrabold text-cyan-300 mt-1">MB</span>
+                                        <span id="fileSizeUnit" class="text-xs font-extrabold text-cyan-300 mt-1">KB</span>
                                         <span id="estTimeBadge" class="text-[10px] text-amber-400 font-bold mt-1 uppercase tracking-tight">Est. ~0 sec</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Dropzone Box -->
-                            <div id="dropzone" class="border-2 border-dashed border-cyan-500/30 hover:border-cyan-400 bg-cyan-950/10 hover:bg-cyan-950/20 rounded-2xl p-4 text-center cursor-pointer transition-all">
-                                <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto mb-2 text-cyan-400">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                                    </svg>
+                            <!-- MEDIA DROPZONE CONTAINER -->
+                            <div id="mediaContainer">
+                                <div id="dropzone" class="border-2 border-dashed border-cyan-500/30 hover:border-cyan-400 bg-cyan-950/10 hover:bg-cyan-950/20 rounded-2xl p-4 text-center cursor-pointer transition-all">
+                                    <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto mb-2 text-cyan-400">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="text-xs font-bold text-slate-200">TAP TO CHOOSE FILE</div>
+                                    <div id="fileNameText" class="text-[11px] text-slate-400 mt-1">
+                                        📷 Photos (RAW/HD) • 🎵 Audio • 🎬 Short Video
+                                    </div>
                                 </div>
-                                <div class="text-xs font-bold text-slate-200">TAP TO CHOOSE FILE</div>
-                                <div id="fileNameText" class="text-[11px] text-slate-400 mt-1">
-                                    📷 Photos (&lt;15MB) • 🎵 Audio (&lt;1.5MB) • 🎬 Video (&lt;1.5MB)
+
+                                <!-- File Preview Box -->
+                                <div id="filePreviewBox" class="hidden bg-slate-950/60 border border-white/10 rounded-xl p-2 text-center mt-3">
+                                    <img id="imgPreviewElem" class="hidden max-h-32 mx-auto rounded-lg border border-cyan-500/30 object-contain" alt="Preview">
+                                    <audio id="audioPreviewElem" controls class="hidden w-full my-1"></audio>
+                                    <video id="videoPreviewElem" controls class="hidden max-h-36 w-full rounded-lg my-1"></video>
                                 </div>
+
+                                <input type="file" id="fileInput" class="hidden" accept="image/*,audio/*,video/*,.jpg,.jpeg,.png,.webp,.gif,.mp3,.wav,.m4a,.mp4,.webm">
                             </div>
 
-                            <!-- Preview Element Box -->
-                            <div id="filePreviewBox" class="hidden bg-slate-950/60 border border-white/10 rounded-xl p-2 text-center">
-                                <img id="imgPreviewElem" class="hidden max-h-32 mx-auto rounded-lg border border-cyan-500/30 object-contain" alt="Preview">
-                                <audio id="audioPreviewElem" controls class="hidden w-full my-1"></audio>
-                                <video id="videoPreviewElem" controls class="hidden max-h-36 w-full rounded-lg my-1"></video>
+                            <!-- TEXT INPUT CONTAINER -->
+                            <div id="textContainer" class="hidden space-y-2">
+                                <label for="textInputArea" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Type or Paste Text / URL</label>
+                                <textarea id="textInputArea" rows="4" placeholder="Enter messages, notes, keys, or web links here..." class="w-full bg-slate-950/80 border border-cyan-500/30 rounded-xl p-3 text-xs text-slate-100 placeholder-slate-500 focus:border-cyan-400 outline-none mono-font resize-none"></textarea>
                             </div>
 
-                            <input type="file" id="fileInput" class="hidden" accept="image/*,audio/*,video/*,.jpg,.jpeg,.png,.webp,.gif,.mp3,.wav,.m4a,.mp4,.webm">
-
-                            <!-- Stream Settings -->
                             <div class="grid grid-cols-2 gap-2 text-left">
-                                <div class="bg-slate-900/60 border border-white/10 rounded-xl p-2.5">
+                                <div id="imgQualityBox" class="bg-slate-900/60 border border-white/10 rounded-xl p-2.5">
                                     <label for="imgQualitySelect" class="block text-[10px] font-bold text-slate-400 mb-1">🖼️ Image Quality</label>
                                     <select id="imgQualitySelect" class="w-full bg-slate-950 text-cyan-400 font-bold text-xs p-1.5 rounded-lg border border-white/10 outline-none">
-                                        <option value="400">400p Fast</option>
-                                        <option value="600" selected>600p HD</option>
-                                        <option value="800">800p Full HD</option>
+                                        <option value="raw" selected>Original Quality (RAW)</option>
+                                        <option value="1080">1080p Full HD</option>
+                                        <option value="800">800p HD</option>
+                                        <option value="600">600p Fast</option>
                                     </select>
+                                </div>
+                                <div id="fileInfoTypeBox" class="hidden bg-slate-900/60 border border-white/10 rounded-xl p-2.5">
+                                    <label class="block text-[10px] font-bold text-slate-400 mb-1">🎵 Payload Stream</label>
+                                    <div id="fileTypeTextDisplay" class="text-xs font-bold text-cyan-400 pt-1">Direct Binary Deflate</div>
                                 </div>
                                 <div class="bg-slate-900/60 border border-white/10 rounded-xl p-2.5">
                                     <label for="densitySelect" class="block text-[10px] font-bold text-slate-400 mb-1">⚡ Frame Density</label>
                                     <select id="densitySelect" class="w-full bg-slate-950 text-cyan-400 font-bold text-xs p-1.5 rounded-lg border border-white/10 outline-none">
-                                        <option value="350" selected>Standard (350)</option>
-                                        <option value="450">Turbo (450)</option>
-                                        <option value="550">Ultra (550)</option>
+                                        <option value="400" selected>Standard (400)</option>
+                                        <option value="500">Turbo (500)</option>
+                                        <option value="600">Ultra (600)</option>
                                     </select>
                                 </div>
                             </div>
@@ -337,14 +359,27 @@
                             <div id="chunkMatrix" class="flex flex-wrap gap-1 max-h-24 overflow-y-auto p-2 bg-black/50 rounded-lg border border-white/5"></div>
                         </div>
 
+                        <!-- RECONSTRUCTED OUTPUT -->
                         <div id="receivedBox" class="hidden text-center bg-emerald-950/20 border border-emerald-500/30 rounded-2xl p-4 animate-fade-in">
-                            <div class="text-sm font-extrabold text-emerald-400 mb-1">🎉 File Reconstructed!</div>
+                            <div class="text-sm font-extrabold text-emerald-400 mb-1">🎉 Payload Decoded!</div>
+                            
+                            <!-- Media Outputs -->
                             <img id="receivedImg" class="hidden max-h-48 mx-auto rounded-xl border border-white/20 my-2" alt="Received">
                             <audio id="receivedAudio" controls class="hidden w-full my-2"></audio>
                             <video id="receivedVideo" controls class="hidden max-h-48 w-full rounded-xl my-2"></video>
-                            <div id="receivedFileInfo" class="text-xs text-slate-400 font-semibold my-2">File Info: N/A</div>
+                            
+                            <!-- Text Output Box -->
+                            <div id="receivedTextBox" class="hidden space-y-2 text-left my-3">
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Scanned Text Message</label>
+                                <textarea id="scannedTextContent" readonly rows="4" class="w-full bg-slate-950 border border-emerald-500/30 rounded-xl p-3 text-xs text-emerald-300 mono-font resize-none outline-none"></textarea>
+                                <button id="copyTextBtn" class="w-full py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold text-xs rounded-lg border border-emerald-500/40 transition-colors flex items-center justify-center gap-1">
+                                    📋 Copy to Clipboard
+                                </button>
+                            </div>
+
+                            <div id="receivedFileInfo" class="text-xs text-slate-400 font-semibold my-2">Payload Info: N/A</div>
                             <a id="downloadBtn" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg hover:scale-105 transition-transform" download="SonicDrop_File">
-                                💾 Save File
+                                💾 Save Payload
                             </a>
                         </div>
                     </div>
@@ -373,7 +408,7 @@
             <div class="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center mx-auto text-amber-400 text-xl">
                 ⚠️
             </div>
-            <h3 id="modalTitle" class="text-base font-extrabold text-slate-100">Large File Notice</h3>
+            <h3 id="modalTitle" class="text-base font-extrabold text-slate-100">Notice</h3>
             <p id="modalMsg" class="text-xs text-slate-300 leading-relaxed"></p>
             <div class="flex gap-2 pt-2">
                 <button id="modalCloseBtn" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider">
@@ -384,26 +419,32 @@
     </div>
 
     <script>
-        async function compressString(str) {
-            const bytes = new TextEncoder().encode(str);
+        
+        // Direct Binary Deflate Engine
+        async function compressArrayBuffer(arrayBuf) {
             const cs = new CompressionStream('deflate-raw');
             const writer = cs.writable.getWriter();
-            writer.write(bytes);
+            writer.write(arrayBuf);
             writer.close();
-            const arrayBuf = await new Response(cs.readable).arrayBuffer();
-            const binStr = String.fromCharCode(...new Uint8Array(arrayBuf));
-            return btoa(binStr);
+            const compressedArrayBuf = await new Response(cs.readable).arrayBuffer();
+            const bytes = new Uint8Array(compressedArrayBuf);
+            let binary = '';
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i += 8192) {
+                binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
+            }
+            return btoa(binary);
         }
 
-        async function decompressString(base64Str) {
+        async function decompressBase64ToBlob(base64Str, mimeType) {
             const binStr = atob(base64Str);
             const bytes = Uint8Array.from(binStr, c => c.charCodeAt(0));
             const ds = new DecompressionStream('deflate-raw');
             const writer = ds.writable.getWriter();
             writer.write(bytes);
             writer.close();
-            const arrayBuf = await new Response(ds.readable).arrayBuffer();
-            return new TextDecoder().decode(arrayBuf);
+            const decompressedBuf = await new Response(ds.readable).arrayBuffer();
+            return new Blob([decompressedBuf], { type: mimeType });
         }
 
         const PureQREngine = (function() {
@@ -419,6 +460,7 @@
             };
         })();
 
+        let activeTab = 'media'; // 'media' or 'text'
         let selectedFile = null;
         let fileMime = '';
         let qrChunks = [];
@@ -445,6 +487,12 @@
         const desktopSendBtn = document.getElementById('desktopSendBtn');
         const desktopReceiveBtn = document.getElementById('desktopReceiveBtn');
 
+        const mediaTabBtn = document.getElementById('mediaTabBtn');
+        const textTabBtn = document.getElementById('textTabBtn');
+        const mediaContainer = document.getElementById('mediaContainer');
+        const textContainer = document.getElementById('textContainer');
+        const textInputArea = document.getElementById('textInputArea');
+
         const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('fileInput');
         const fileNameText = document.getElementById('fileNameText');
@@ -457,6 +505,10 @@
         const imgPreviewElem = document.getElementById('imgPreviewElem');
         const audioPreviewElem = document.getElementById('audioPreviewElem');
         const videoPreviewElem = document.getElementById('videoPreviewElem');
+
+        const imgQualityBox = document.getElementById('imgQualityBox');
+        const fileInfoTypeBox = document.getElementById('fileInfoTypeBox');
+        const fileTypeTextDisplay = document.getElementById('fileTypeTextDisplay');
 
         const imgQualitySelect = document.getElementById('imgQualitySelect');
         const densitySelect = document.getElementById('densitySelect');
@@ -476,6 +528,9 @@
         const receivedImg = document.getElementById('receivedImg');
         const receivedAudio = document.getElementById('receivedAudio');
         const receivedVideo = document.getElementById('receivedVideo');
+        const receivedTextBox = document.getElementById('receivedTextBox');
+        const scannedTextContent = document.getElementById('scannedTextContent');
+        const copyTextBtn = document.getElementById('copyTextBtn');
         const receivedFileInfo = document.getElementById('receivedFileInfo');
         const downloadBtn = document.getElementById('downloadBtn');
 
@@ -491,6 +546,43 @@
         }
 
         modalCloseBtn.onclick = () => customModal.classList.add('hidden');
+
+        // Tab Switching in Sender
+        mediaTabBtn.onclick = () => {
+            activeTab = 'media';
+            mediaTabBtn.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-cyan-400 bg-slate-800/80 transition-all";
+            textTabBtn.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition-all";
+            mediaContainer.classList.remove('hidden');
+            textContainer.classList.add('hidden');
+            imgQualityBox.classList.remove('hidden');
+            fileInfoTypeBox.classList.add('hidden');
+            if (selectedFile) handleFileSelection(selectedFile);
+            else resetStats();
+        };
+
+        textTabBtn.onclick = () => {
+            activeTab = 'text';
+            textTabBtn.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-cyan-400 bg-slate-800/80 transition-all";
+            mediaTabBtn.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition-all";
+            textContainer.classList.remove('hidden');
+            mediaContainer.classList.add('hidden');
+            imgQualityBox.classList.add('hidden');
+            fileInfoTypeBox.classList.remove('hidden');
+            fileTypeTextDisplay.innerText = "📝 Text Payload";
+            handleTextSelection();
+        };
+
+        textInputArea.oninput = () => {
+            if (activeTab === 'text') handleTextSelection();
+        };
+
+        function resetStats() {
+            fileSizeNum.innerText = "0.00";
+            fileSizeUnit.innerText = "KB";
+            estTimeBadge.innerText = "Est. ~0 sec";
+            statCircleBar.style.strokeDashoffset = "283";
+            qrChunks = [];
+        }
 
         function setSendMode() {
             senderSection.classList.remove('hidden');
@@ -510,7 +602,7 @@
             } else {
                 senderControls.classList.remove('hidden');
                 qrCard.classList.add('hidden');
-                updateStatus("Select file to broadcast", "ready");
+                updateStatus("Select file or type text to broadcast", "ready");
             }
         }
 
@@ -546,13 +638,42 @@
             if (e.target.files && e.target.files.length > 0) handleFileSelection(e.target.files[0]);
         };
 
+        imgQualitySelect.onchange = () => {
+            if (selectedFile && fileMime.startsWith('image/')) handleFileSelection(selectedFile);
+        };
+
+        densitySelect.onchange = () => {
+            if (activeTab === 'text') handleTextSelection();
+            else if (selectedFile) handleFileSelection(selectedFile);
+        };
+
+        async function handleTextSelection() {
+            const val = textInputArea.value.trim();
+            if (!val) {
+                resetStats();
+                return;
+            }
+
+            fileMime = 'text/plain';
+            const encoder = new TextEncoder();
+            const bytes = encoder.encode(val);
+            const sizeInKB = bytes.byteLength / 1024;
+
+            fileSizeNum.innerText = sizeInKB < 1 ? sizeInKB.toFixed(2) : Math.round(sizeInKB);
+            fileSizeUnit.innerText = "KB";
+            statCircleBar.style.strokeDashoffset = "50";
+
+            const compressedBase64 = await compressArrayBuffer(bytes.buffer);
+            chunkPayloadString(compressedBase64);
+        }
+
         function handleFileSelection(file) {
             selectedFile = file;
             fileMime = selectedFile.type || getMimeFromExtension(selectedFile.name);
             
             const sizeInMB = selectedFile.size / (1024 * 1024);
-            fileSizeNum.innerText = sizeInMB >= 1000 ? (sizeInMB / 1024).toFixed(2) : sizeInMB.toFixed(2);
-            fileSizeUnit.innerText = sizeInMB >= 1000 ? "GB" : "MB";
+            fileSizeNum.innerText = sizeInMB >= 1000 ? (sizeInMB / 1024).toFixed(2) : (sizeInMB >= 1 ? sizeInMB.toFixed(2) : Math.round(selectedFile.size/1024));
+            fileSizeUnit.innerText = sizeInMB >= 1000 ? "GB" : (sizeInMB >= 1 ? "MB" : "KB");
 
             statCircleBar.style.strokeDashoffset = "50";
             fileNameText.innerText = `${selectedFile.name} (${Math.round(selectedFile.size/1024)} KB)`;
@@ -565,24 +686,25 @@
             const isAudio = fileMime.startsWith('audio/') || selectedFile.name.match(/\.(mp3|wav|ogg|m4a|aac|flac)$/i);
             const isVideo = fileMime.startsWith('video/') || selectedFile.name.match(/\.(mp4|webm|mov|mkv|avi)$/i);
 
+            if (isAudio || isVideo) {
+                imgQualityBox.classList.add('hidden');
+                fileInfoTypeBox.classList.remove('hidden');
+                fileTypeTextDisplay.innerText = isAudio ? "🎵 Audio Stream" : "🎬 Video Stream";
+            } else {
+                imgQualityBox.classList.remove('hidden');
+                fileInfoTypeBox.classList.add('hidden');
+            }
+
             if (isVideo) {
                 if (!fileMime.startsWith('video/')) fileMime = 'video/mp4';
                 videoPreviewElem.src = URL.createObjectURL(selectedFile);
                 videoPreviewElem.classList.remove('hidden');
-
-                if (sizeInMB > 2.0) {
-                    showModal("Video Limit Notice", `Video size is ${sizeInMB.toFixed(2)} MB. Visual QR streams work best with micro video clips under 1.5 MB. Transfer may take a long time.`);
-                }
-                processGenericFileChunking();
+                processRawBinaryChunking(selectedFile);
             } else if (isAudio) {
                 if (!fileMime.startsWith('audio/')) fileMime = 'audio/mpeg';
                 audioPreviewElem.src = URL.createObjectURL(selectedFile);
                 audioPreviewElem.classList.remove('hidden');
-
-                if (sizeInMB > 1.8) {
-                    showModal("Audio Limit Notice", `Audio file is ${sizeInMB.toFixed(2)} MB. Visual QR streams work best for short audio/voice clips under 1.5 MB.`);
-                }
-                processGenericFileChunking();
+                processRawBinaryChunking(selectedFile);
             } else {
                 if (!fileMime.startsWith('image/')) fileMime = 'image/jpeg';
                 imgPreviewElem.classList.remove('hidden');
@@ -590,7 +712,11 @@
                 const reader = new FileReader();
                 reader.onload = (evt) => {
                     imgPreviewElem.src = evt.target.result;
-                    compressAndChunkImage(evt.target.result);
+                    if (imgQualitySelect.value === 'raw') {
+                        processRawBinaryChunking(selectedFile);
+                    } else {
+                        compressAndChunkImage(evt.target.result);
+                    }
                 };
                 reader.readAsDataURL(selectedFile);
             }
@@ -611,25 +737,31 @@
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                let compressedBase64 = canvas.toDataURL('image/webp', 0.70);
+                let compressedBase64 = canvas.toDataURL('image/webp', 0.80);
                 if (!compressedBase64.startsWith('data:image/webp')) {
-                    compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
+                    compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
                 }
 
-                const deflatedPayload = await compressString(compressedBase64);
-                chunkPayloadString(deflatedPayload);
+                const base64Data = compressedBase64.split(',')[1];
+                const binaryStr = atob(base64Data);
+                const len = binaryStr.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) bytes[i] = binaryStr.charCodeAt(i);
+
+                const deflatedBase64 = await compressArrayBuffer(bytes.buffer);
+                chunkPayloadString(deflatedBase64);
             };
             img.src = dataUrl;
         }
 
-        function processGenericFileChunking() {
-            updateStatus("Deflating Media Payload...", "transmitting");
+        function processRawBinaryChunking(fileObj) {
+            updateStatus("Deflating Binary Payload...", "transmitting");
             const reader = new FileReader();
             reader.onload = async (e) => {
-                const deflatedPayload = await compressString(e.target.result);
-                chunkPayloadString(deflatedPayload);
+                const deflatedBase64 = await compressArrayBuffer(e.target.result);
+                chunkPayloadString(deflatedBase64);
             };
-            reader.readAsDataURL(selectedFile);
+            reader.readAsArrayBuffer(fileObj);
         }
 
         function chunkPayloadString(payloadData) {
@@ -647,7 +779,11 @@
         }
 
         startStreamBtn.onclick = () => {
-            if (!selectedFile || qrChunks.length === 0) {
+            if (activeTab === 'text' && textInputArea.value.trim() === '') {
+                showModal("No Text Entered", "Please enter or paste text to broadcast.");
+                return;
+            }
+            if (activeTab === 'media' && (!selectedFile || qrChunks.length === 0)) {
                 showModal("No File Selected", "Please choose a photo, audio, or video file to broadcast.");
                 return;
             }
@@ -677,7 +813,8 @@
 
             const canvasElem = document.getElementById('qrCanvas');
             const total = qrChunks.length;
-            const metaName = encodeURIComponent(selectedFile.name.substring(0, 15));
+            const nameToEncode = activeTab === 'text' ? 'SonicDrop_Notes.txt' : selectedFile.name;
+            const metaName = encodeURIComponent(nameToEncode.substring(0, 15));
 
             const renderFrame = () => {
                 try {
@@ -704,7 +841,7 @@
             qrCard.classList.add('hidden');
             senderControls.classList.remove('hidden');
             if (!receiverSection.classList.contains('hidden')) return;
-            updateStatus("Select file to broadcast", "ready");
+            updateStatus("Select file or type text to broadcast", "ready");
         }
 
         startScanBtn.onclick = () => { openCameraScanner(); };
@@ -793,28 +930,38 @@
                     fullDeflated += receivedMap.get(i);
                 }
 
-                const fullBase64 = await decompressString(fullDeflated);
-                const kbSize = Math.round((fullBase64.length * (3/4)) / 1024);
+                const blob = await decompressBase64ToBlob(fullDeflated, expectedMime);
+                const fileUrl = URL.createObjectURL(blob);
+                const kbSize = Math.round(blob.size / 1024);
 
-                receivedFileInfo.innerText = `Name: ${expectedName || 'SonicDrop_File'} | Size: ~${kbSize} KB`;
+                receivedFileInfo.innerText = `Name: ${expectedName || 'SonicDrop_Payload'} | Size: ~${kbSize} KB`;
 
                 receivedImg.classList.add('hidden');
                 receivedAudio.classList.add('hidden');
                 receivedVideo.classList.add('hidden');
+                receivedTextBox.classList.add('hidden');
 
-                if (expectedMime.startsWith('video/')) {
+                if (expectedMime === 'text/plain') {
+                    const textContent = await blob.text();
+                    scannedTextContent.value = textContent;
+                    receivedTextBox.classList.remove('hidden');
+                    downloadBtn.innerText = "💾 Save Text File";
+                } else if (expectedMime.startsWith('video/')) {
                     receivedVideo.classList.remove('hidden');
-                    receivedVideo.src = fullBase64;
+                    receivedVideo.src = fileUrl;
+                    downloadBtn.innerText = "💾 Save Video";
                 } else if (expectedMime.startsWith('audio/')) {
                     receivedAudio.classList.remove('hidden');
-                    receivedAudio.src = fullBase64;
+                    receivedAudio.src = fileUrl;
+                    downloadBtn.innerText = "💾 Save Audio";
                 } else {
                     receivedImg.classList.remove('hidden');
-                    receivedImg.src = fullBase64;
+                    receivedImg.src = fileUrl;
+                    downloadBtn.innerText = "💾 Save Photo";
                 }
 
-                downloadBtn.href = fullBase64;
-                downloadBtn.download = expectedName || 'SonicDrop_File';
+                downloadBtn.href = fileUrl;
+                downloadBtn.download = expectedName || 'SonicDrop_Payload';
 
                 progressBox.classList.add('hidden');
                 receivedBox.classList.remove('hidden');
@@ -825,6 +972,16 @@
                 updateStatus("Error decompressing payload!", "error");
             }
         }
+
+        // Clipboard Copy Button
+        copyTextBtn.onclick = () => {
+            scannedTextContent.select();
+            document.execCommand('copy');
+            copyTextBtn.innerText = "✅ Copied to Clipboard!";
+            setTimeout(() => {
+                copyTextBtn.innerText = "📋 Copy to Clipboard";
+            }, 2000);
+        };
 
         function stopScanner() {
             if (qrScanner) {
@@ -846,6 +1003,7 @@
             if (['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'].includes(ext)) return 'audio/' + (ext === 'mp3' ? 'mpeg' : ext);
             if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext)) return 'image/' + (ext === 'jpg' ? 'jpeg' : ext);
             if (['mp4', 'webm', 'mov', 'mkv', 'avi'].includes(ext)) return 'video/' + (ext === 'mp4' ? 'mp4' : ext);
+            if (['txt', 'log', 'md', 'json'].includes(ext)) return 'text/plain';
             return 'application/octet-stream';
         }
     </script>
