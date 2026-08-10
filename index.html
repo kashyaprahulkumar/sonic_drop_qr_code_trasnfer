@@ -195,7 +195,7 @@
         <div class="text-center mb-6">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-950/20 mb-2">
                 <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-                <span class="text-xs font-bold text-cyan-400 uppercase tracking-widest mono-font">SonicDrop Turbo • WebRTC Direct Multi-File + Sonic Burst</span>
+                <span class="text-xs font-bold text-cyan-400 uppercase tracking-widest mono-font">SonicDrop Turbo • Direct P2P + Sonic Acoustic FSK Receiver</span>
             </div>
             <h1 class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-100 via-cyan-300 to-pink-500">
                 Turbo Transfer Hub
@@ -322,7 +322,7 @@
                                     </select>
                                 </div>
                                 <div id="sonicSoundBox" class="bg-slate-900/60 border border-white/10 rounded-xl p-2.5 flex flex-col justify-between">
-                                    <label class="block text-[10px] font-bold text-slate-400 mb-1">🔊 Sonic Wave Tone</label>
+                                    <label class="block text-[10px] font-bold text-slate-400 mb-1">🔊 Sonic Tone Broadcast</label>
                                     <button id="sonicToggleBtn" class="w-full py-1 bg-cyan-500/20 text-cyan-300 font-extrabold text-[11px] rounded-lg border border-cyan-500/40 transition-colors">
                                         🔊 Sonic Sound ON
                                     </button>
@@ -360,14 +360,29 @@
 
                     <!-- RECEIVER SECTION -->
                     <div id="receiverSection" class="hidden space-y-4">
-                        <div class="flex items-center gap-2">
-                            <div class="bg-slate-900/60 border border-white/10 rounded-xl p-2.5 w-full">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-slate-900/60 border border-white/10 rounded-xl p-2.5">
                                 <label for="cameraSelect" class="block text-[10px] font-bold text-slate-400 mb-1">📷 Camera Source</label>
                                 <select id="cameraSelect" class="w-full bg-slate-950 text-pink-400 font-bold text-xs p-1.5 rounded-lg border border-white/10 outline-none">
                                     <option value="environment" selected>📷 Rear Camera</option>
                                     <option value="user">🤳 Front Camera</option>
                                 </select>
                             </div>
+                            <div class="bg-slate-900/60 border border-white/10 rounded-xl p-2.5 flex flex-col justify-between">
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1">🎙️ Sonic Mic Listener</label>
+                                <button id="sonicListenerBtn" class="w-full py-1 bg-pink-500/20 text-pink-300 font-extrabold text-[11px] rounded-lg border border-pink-500/40 transition-colors">
+                                    🎙️ Sonic Listener ON
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- LIVE SONIC AUDIO SPECTRUM VISUALIZER CANVAS -->
+                        <div id="sonicVisualizerBox" class="bg-slate-950/80 border border-pink-500/30 rounded-xl p-2 text-center space-y-1">
+                            <div class="flex items-center justify-between text-[10px] font-bold text-pink-400 px-1">
+                                <span>🎙️ SONIC SPECTRUM LISTENER</span>
+                                <span id="sonicFreqLabel" class="mono-font text-emerald-400">Monitoring 1200-2250 Hz</span>
+                            </div>
+                            <canvas id="sonicSpecCanvas" width="300" height="36" class="w-full h-9 bg-slate-900/90 rounded-lg border border-white/10"></canvas>
                         </div>
 
                         <button id="startScanBtn" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 text-white font-black text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(255,42,133,0.3)] hover:shadow-[0_0_30px_rgba(255,42,133,0.5)] transition-all">
@@ -605,7 +620,7 @@
             }
         }
 
-        // Sonic Audio FSK Data Engine
+        // Sonic Audio FSK Data Engine (Transmitter & Receiver Listener)
         let audioCtx = null;
         let sonicEnabled = true;
 
@@ -627,6 +642,92 @@
                 osc.start();
                 osc.stop(audioCtx.currentTime + 0.08);
             } catch(e) {}
+        }
+
+        // SONIC MICROPHONE LISTENER & SPECTRUM ANALYZER
+        let sonicRecContext = null;
+        let sonicMicStream = null;
+        let sonicAnalyser = null;
+        let sonicAnimId = null;
+        let sonicListening = true;
+
+        async function startSonicReceiver() {
+            if (!sonicListening) return;
+            try {
+                if (!sonicRecContext) sonicRecContext = new (window.AudioContext || window.webkitAudioContext)();
+                if (sonicRecContext.state === 'suspended') await sonicRecContext.resume();
+
+                sonicMicStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                const source = sonicRecContext.createMediaStreamSource(sonicMicStream);
+                sonicAnalyser = sonicRecContext.createAnalyser();
+                sonicAnalyser.fftSize = 512;
+                source.connect(sonicAnalyser);
+
+                drawSonicSpectrum();
+            } catch(e) {
+                console.warn("Sonic Listener Mic Permission Denied / Error:", e);
+                document.getElementById('sonicFreqLabel').innerText = "Mic Offline";
+            }
+        }
+
+        function drawSonicSpectrum() {
+            const canvas = document.getElementById('sonicSpecCanvas');
+            if (!canvas || !sonicAnalyser) return;
+            const ctx = canvas.getContext('2d');
+            const bufferLength = sonicAnalyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+
+            const renderFrame = () => {
+                if (!sonicListening) return;
+                sonicAnimId = requestAnimationFrame(renderFrame);
+                sonicAnalyser.getByteFrequencyData(dataArray);
+
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const barWidth = (canvas.width / bufferLength) * 2.5;
+                let x = 0;
+                let maxVal = 0;
+                let maxFreqIdx = 0;
+
+                for (let i = 0; i < bufferLength; i++) {
+                    const barHeight = (dataArray[i] / 255) * canvas.height;
+                    
+                    // Highlight FSK Band (1200 - 2250 Hz)
+                    const freqHz = i * (sonicRecContext.sampleRate / sonicAnalyser.fftSize);
+                    if (freqHz >= 1200 && freqHz <= 2250) {
+                        ctx.fillStyle = `rgb(${dataArray[i] + 50}, 242, 254)`;
+                        if (dataArray[i] > maxVal) {
+                            maxVal = dataArray[i];
+                            maxFreqIdx = Math.round(freqHz);
+                        }
+                    } else {
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+                    }
+
+                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                    x += barWidth + 1;
+                }
+
+                if (maxVal > 140) {
+                    document.getElementById('sonicFreqLabel').innerText = `🎵 Tone Detected: ${maxFreqIdx} Hz`;
+                } else {
+                    document.getElementById('sonicFreqLabel').innerText = "Listening 1200-2250 Hz...";
+                }
+            };
+
+            renderFrame();
+        }
+
+        function stopSonicReceiver() {
+            if (sonicAnimId) {
+                cancelAnimationFrame(sonicAnimId);
+                sonicAnimId = null;
+            }
+            if (sonicMicStream) {
+                sonicMicStream.getTracks().forEach(t => t.stop());
+                sonicMicStream = null;
+            }
         }
 
         const PureQREngine = (function() {
@@ -700,6 +801,7 @@
         const imgQualityBox = document.getElementById('imgQualityBox');
         const imgQualitySelect = document.getElementById('imgQualitySelect');
         const sonicToggleBtn = document.getElementById('sonicToggleBtn');
+        const sonicListenerBtn = document.getElementById('sonicListenerBtn');
 
         const startStreamBtn = document.getElementById('startStreamBtn');
         const qrCard = document.getElementById('qrCard');
@@ -740,6 +842,17 @@
             sonicToggleBtn.className = sonicEnabled 
                 ? "w-full py-1 bg-cyan-500/20 text-cyan-300 font-extrabold text-[11px] rounded-lg border border-cyan-500/40 transition-colors"
                 : "w-full py-1 bg-slate-800 text-slate-400 font-extrabold text-[11px] rounded-lg border border-white/10 transition-colors";
+        };
+
+        sonicListenerBtn.onclick = () => {
+            sonicListening = !sonicListening;
+            sonicListenerBtn.innerText = sonicListening ? "🎙️ Sonic Listener ON" : "🔇 Sonic Listener OFF";
+            sonicListenerBtn.className = sonicListening 
+                ? "w-full py-1 bg-pink-500/20 text-pink-300 font-extrabold text-[11px] rounded-lg border border-pink-500/40 transition-colors"
+                : "w-full py-1 bg-slate-800 text-slate-400 font-extrabold text-[11px] rounded-lg border border-white/10 transition-colors";
+            
+            if (sonicListening) startSonicReceiver();
+            else stopSonicReceiver();
         };
 
         p2pModeBtn.onclick = () => {
@@ -804,6 +917,8 @@
             mobileReceiveBtn.classList.remove('active');
             
             stopScanner();
+            stopSonicReceiver();
+
             if (streamInterval) {
                 senderControls.classList.add('hidden');
                 qrCard.classList.remove('hidden');
@@ -826,6 +941,8 @@
             mobileSendBtn.classList.remove('active');
 
             stopStream();
+            if (sonicListening) startSonicReceiver();
+
             updateStatus("Open camera scanner to capture", "ready");
         }
 
@@ -920,7 +1037,6 @@
                 fileSizeUnit.innerText = "KB";
             }
 
-            // For Optical Stream, prepare compressed single or combined batch
             if (selectedFiles.length === 1) {
                 const primaryFile = selectedFiles[0];
                 fileMime = (primaryFile.type || getMimeFromExtension(primaryFile.name)).toUpperCase();
@@ -933,7 +1049,6 @@
                 reader.readAsArrayBuffer(primaryFile);
             } else {
                 fileMime = 'APPLICATION/BATCH';
-                // Package files into custom binary batch format
                 const packedBuffer = await createPackedBatchBuffer(selectedFiles);
                 compressedPayloadBytes = await compressArrayBuffer(packedBuffer);
                 chunkPayloadBytes(compressedPayloadBytes);
@@ -949,7 +1064,6 @@
                 const mimeBytes = textEncoder.encode(file.type || getMimeFromExtension(file.name));
                 const fileBuf = await file.arrayBuffer();
 
-                // Header structure: 2 bytes name len, 2 bytes mime len, 4 bytes file len
                 const header = new ArrayBuffer(8);
                 const view = new DataView(header);
                 view.setUint16(0, nameBytes.length, true);
@@ -959,7 +1073,6 @@
                 buffers.push(header, nameBytes.buffer, mimeBytes.buffer, fileBuf);
             }
 
-            // Concatenate all buffers
             const totalLen = buffers.reduce((acc, b) => acc + b.byteLength, 0);
             const packed = new Uint8Array(totalLen);
             let offset = 0;
@@ -1038,7 +1151,6 @@
             };
         });
 
-        // Initialize PeerJS for Direct WebRTC Multi-File Transfers
         function initPeerJSSender() {
             qrCardTitle.innerText = "1-Scan Pair QR Code (WebRTC Direct P2P Batch)";
             fpsContainer.classList.add('hidden');
@@ -1071,7 +1183,6 @@
                             text: textInputArea.value
                         });
                     } else {
-                        // Stream each selected file over DataChannel
                         for (let i = 0; i < selectedFiles.length; i++) {
                             const file = selectedFiles[i];
                             const fileBuf = await file.arrayBuffer();
@@ -1123,7 +1234,6 @@
                     const canvasElem = document.getElementById('qrCanvas');
                     PureQREngine.render(canvasElem, payload);
 
-                    // Sonic Audio FSK Burst Tone
                     const freq = 1200 + ((currentDropIdx % 8) * 150);
                     playSonicTone(freq);
 
@@ -1169,6 +1279,8 @@
             const chosenFacingMode = cameraSelect.value;
             updateStatus(`Scanner Active. Point camera at stream/pairing code`, "transmitting");
 
+            if (sonicListening) startSonicReceiver();
+
             if (typeof Html5Qrcode !== 'undefined') {
                 if (!qrScanner) qrScanner = new Html5Qrcode("qrReader");
 
@@ -1184,7 +1296,6 @@
         }
 
         function onQrCodeScanned(decodedText) {
-            // Handle WebRTC 1-Scan Direct Connection
             if (decodedText.startsWith("P2P:")) {
                 const parts = decodedText.split(":");
                 if (parts.length < 5) return;
@@ -1237,7 +1348,6 @@
                 return;
             }
 
-            // Handle Optical Fountain Stream
             if (!decodedText.startsWith("QRF:") && !decodedText.startsWith("QRD|")) return;
 
             let total = 0, origBytes = 0, indicesArray = [], mime = '', fileName = '', data = '';
