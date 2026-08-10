@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SonicDrop Turbo - Visual Stream</title>
+    <title>SonicDrop Turbo - Visual Stream for Photos, Audio & Video</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Standalone Fast Reader & QR Generator Libraries -->
@@ -15,14 +15,11 @@
 
         :root {
             --bg-dark: #080b13;
-            --card-bg: rgba(13, 18, 30, 0.75);
+            --card-bg: rgba(13, 18, 30, 0.85);
             --cyan-neon: #00f2fe;
             --cyan-glow: rgba(0, 242, 254, 0.4);
             --pink-neon: #ff2a85;
             --pink-glow: rgba(255, 42, 133, 0.45);
-            --purple-neon: #a855f7;
-            --green-neon: #10b981;
-            --lime-neon: #a3e635;
             --border-glass: rgba(255, 255, 255, 0.08);
             --border-highlight: rgba(0, 242, 254, 0.3);
         }
@@ -55,7 +52,6 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Glassmorphism Panel */
         .hud-card {
             background: var(--card-bg);
             backdrop-filter: blur(20px);
@@ -66,44 +62,25 @@
 
         /* Circular Glow Buttons */
         .btn-circle-send {
-            width: 140px;
-            height: 140px;
+            width: 130px;
+            height: 130px;
             border-radius: 50%;
             background: radial-gradient(circle, rgba(0, 242, 254, 0.12) 0%, rgba(8, 11, 19, 0.9) 70%);
             border: 2px solid var(--cyan-neon);
-            box-shadow: 
-                0 0 25px var(--cyan-glow),
-                inset 0 0 15px var(--cyan-glow);
+            box-shadow: 0 0 25px var(--cyan-glow), inset 0 0 15px var(--cyan-glow);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .btn-circle-send:hover {
-            transform: scale(1.06);
-            box-shadow: 
-                0 0 40px var(--cyan-glow),
-                inset 0 0 25px var(--cyan-glow);
         }
 
         .btn-circle-receive {
-            width: 140px;
-            height: 140px;
+            width: 130px;
+            height: 130px;
             border-radius: 50%;
             background: radial-gradient(circle, rgba(255, 42, 133, 0.15) 0%, rgba(8, 11, 19, 0.9) 70%);
             border: 2px solid var(--pink-neon);
-            box-shadow: 
-                0 0 25px var(--pink-glow),
-                inset 0 0 15px var(--pink-glow);
+            box-shadow: 0 0 25px var(--pink-glow), inset 0 0 15px var(--pink-glow);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .btn-circle-receive:hover {
-            transform: scale(1.06);
-            box-shadow: 
-                0 0 40px var(--pink-glow),
-                inset 0 0 25px var(--pink-glow);
-        }
-
-        /* Mobile Pill Switch */
         .pill-send-btn {
             border: 2px solid var(--cyan-neon);
             color: var(--cyan-neon);
@@ -111,7 +88,7 @@
         }
 
         .pill-send-btn.active {
-            background: rgba(0, 242, 254, 0.15);
+            background: rgba(0, 242, 254, 0.2);
             box-shadow: 0 0 20px var(--cyan-glow);
         }
 
@@ -127,18 +104,6 @@
             box-shadow: 0 0 25px var(--pink-glow);
         }
 
-        /* Animated Circuit Connection Lines */
-        .circuit-line {
-            stroke: rgba(0, 242, 254, 0.4);
-            stroke-dasharray: 6;
-            animation: dash 12s linear infinite;
-        }
-
-        @keyframes dash {
-            to { stroke-dashoffset: -100; }
-        }
-
-        /* Scanner Frame & Laser Overlay */
         #scannerBox {
             aspect-ratio: 1 / 1;
             width: 100%;
@@ -182,7 +147,6 @@
             100% { top: 90%; }
         }
 
-        /* Circular Stat Gauge */
         .stat-circle-svg {
             transform: rotate(-90deg);
         }
@@ -198,19 +162,6 @@
             transition: stroke-dashoffset 0.8s ease;
             filter: drop-shadow(0px 0px 8px var(--cyan-glow));
         }
-
-        /* Scrollbar customization */
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.2);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.15);
-            border-radius: 4px;
-        }
     </style>
 </head>
 <body>
@@ -221,14 +172,14 @@
         <div class="text-center mb-6">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-950/20 mb-2">
                 <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-                <span class="text-xs font-bold text-cyan-400 uppercase tracking-widest mono-font">SonicDrop Turbo • visual stream</span>
+                <span class="text-xs font-bold text-cyan-400 uppercase tracking-widest mono-font">SonicDrop Turbo • Visual Stream</span>
             </div>
             <h1 class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-100 via-cyan-300 to-pink-500">
                 P2P Visual Stream
             </h1>
         </div>
 
-        <!-- ================= MOBILE NAVIGATION PILLS ================= -->
+        <!-- MOBILE NAVIGATION PILLS -->
         <div class="flex md:hidden w-full max-w-xs gap-3 mb-6">
             <button id="mobileSendBtn" class="pill-send-btn active flex-1 py-3 rounded-full text-xs font-black uppercase tracking-wider transition-all">
                 SEND
@@ -238,7 +189,6 @@
             </button>
         </div>
 
-        <!-- ================= MAIN DESKTOP & MOBILE HUD GRID ================= -->
         <div class="w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
             
             <!-- LEFT DESKTOP WIDGET: SEND CIRCLE -->
@@ -256,16 +206,6 @@
             <div class="col-span-1 md:col-span-6 w-full">
                 <div class="hud-card rounded-3xl p-6 relative overflow-hidden border border-white/10">
                     
-                    <!-- Decorative Connection Circuit Visualizer -->
-                    <div class="hidden md:block absolute top-2 left-0 right-0 h-8 pointer-events-none px-6">
-                        <svg class="w-full h-full" viewBox="0 0 400 30" fill="none">
-                            <path d="M 10 15 L 150 15 L 170 25 L 230 25 L 250 15 L 390 15" class="circuit-line" stroke-width="1.5" />
-                            <circle cx="150" cy="15" r="3" fill="#00f2fe" />
-                            <circle cx="250" cy="15" r="3" fill="#ff2a85" />
-                        </svg>
-                    </div>
-
-                    <!-- Mode Indicator Title -->
                     <div class="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
                         <div class="flex items-center gap-2">
                             <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#00f2fe]"></div>
@@ -274,13 +214,13 @@
                         <span id="statusText" class="text-[11px] text-slate-400 font-medium truncate max-w-[200px]">Select file to broadcast</span>
                     </div>
 
-                    <!-- SENDER SECTION CONTROLS -->
+                    <!-- SENDER SECTION -->
                     <div id="senderSection" class="space-y-4">
                         
-                        <!-- Sender Setup Controls (Collapses during stream) -->
+                        <!-- Sender Setup Controls -->
                         <div id="senderControls" class="space-y-4">
-                            <!-- Circular Transfer Meter Display -->
-                            <div class="flex items-center justify-center my-4 relative">
+                            <!-- Circular Gauge & Time Estimate -->
+                            <div class="flex items-center justify-center my-2 relative">
                                 <div class="relative w-36 h-36 flex items-center justify-center">
                                     <svg class="w-full h-full stat-circle-svg" viewBox="0 0 100 100">
                                         <circle class="stat-circle-bg" cx="50" cy="50" r="42" stroke-width="6" fill="none" />
@@ -289,51 +229,59 @@
                                     <div class="absolute text-center flex flex-col items-center justify-center">
                                         <span id="fileSizeNum" class="text-2xl font-black text-cyan-400 mono-font leading-none">0.00</span>
                                         <span id="fileSizeUnit" class="text-xs font-extrabold text-cyan-300 mt-1">MB</span>
-                                        <span class="text-[10px] text-pink-500 font-semibold mt-0.5 uppercase tracking-tight">Files to Send</span>
+                                        <span id="estTimeBadge" class="text-[10px] text-amber-400 font-bold mt-1 uppercase tracking-tight">Est. ~0 sec</span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Dropzone Box -->
-                            <div id="dropzone" class="border-2 border-dashed border-cyan-500/30 hover:border-cyan-400 bg-cyan-950/10 hover:bg-cyan-950/20 rounded-2xl p-5 text-center cursor-pointer transition-all">
-                                <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto mb-2 text-cyan-400">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div id="dropzone" class="border-2 border-dashed border-cyan-500/30 hover:border-cyan-400 bg-cyan-950/10 hover:bg-cyan-950/20 rounded-2xl p-4 text-center cursor-pointer transition-all">
+                                <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto mb-2 text-cyan-400">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                                     </svg>
                                 </div>
-                                <div class="text-xs font-bold text-slate-200">DRAG & DROP MEDIA</div>
-                                <div id="fileNameText" class="text-[11px] text-slate-400 mt-1">Supports Photos (JPG, PNG, WebP) & Audio (MP3, WAV)</div>
+                                <div class="text-xs font-bold text-slate-200">TAP TO CHOOSE FILE</div>
+                                <div id="fileNameText" class="text-[11px] text-slate-400 mt-1">
+                                    📷 Photos (&lt;15MB) • 🎵 Audio (&lt;1.5MB) • 🎬 Video (&lt;1.5MB)
+                                </div>
                             </div>
 
-                            <input type="file" id="fileInput" class="hidden" accept="image/*,audio/*,.jpg,.jpeg,.png,.webp,.gif,.mp3,.wav,.m4a">
+                            <!-- Preview Element Box -->
+                            <div id="filePreviewBox" class="hidden bg-slate-950/60 border border-white/10 rounded-xl p-2 text-center">
+                                <img id="imgPreviewElem" class="hidden max-h-32 mx-auto rounded-lg border border-cyan-500/30 object-contain" alt="Preview">
+                                <audio id="audioPreviewElem" controls class="hidden w-full my-1"></audio>
+                                <video id="videoPreviewElem" controls class="hidden max-h-36 w-full rounded-lg my-1"></video>
+                            </div>
 
-                            <!-- Quality Settings Controls -->
+                            <input type="file" id="fileInput" class="hidden" accept="image/*,audio/*,video/*,.jpg,.jpeg,.png,.webp,.gif,.mp3,.wav,.m4a,.mp4,.webm">
+
+                            <!-- Stream Settings -->
                             <div class="grid grid-cols-2 gap-2 text-left">
                                 <div class="bg-slate-900/60 border border-white/10 rounded-xl p-2.5">
-                                    <label for="imgQualitySelect" class="block text-[10px] font-bold text-slate-400 mb-1">🖼️ Resolution</label>
+                                    <label for="imgQualitySelect" class="block text-[10px] font-bold text-slate-400 mb-1">🖼️ Image Quality</label>
                                     <select id="imgQualitySelect" class="w-full bg-slate-950 text-cyan-400 font-bold text-xs p-1.5 rounded-lg border border-white/10 outline-none">
-                                        <option value="400">400p (Fast)</option>
-                                        <option value="600" selected>600p (HD)</option>
-                                        <option value="800">800p (Full HD)</option>
+                                        <option value="400">400p Fast</option>
+                                        <option value="600" selected>600p HD</option>
+                                        <option value="800">800p Full HD</option>
                                     </select>
                                 </div>
                                 <div class="bg-slate-900/60 border border-white/10 rounded-xl p-2.5">
-                                    <label for="densitySelect" class="block text-[10px] font-bold text-slate-400 mb-1">⚡ Density Chunk</label>
+                                    <label for="densitySelect" class="block text-[10px] font-bold text-slate-400 mb-1">⚡ Frame Density</label>
                                     <select id="densitySelect" class="w-full bg-slate-950 text-cyan-400 font-bold text-xs p-1.5 rounded-lg border border-white/10 outline-none">
-                                        <option value="350" selected>Standard (350 Chars)</option>
-                                        <option value="450">Turbo (450 Chars)</option>
-                                        <option value="550">Ultra (550 Chars)</option>
+                                        <option value="350" selected>Standard (350)</option>
+                                        <option value="450">Turbo (450)</option>
+                                        <option value="550">Ultra (550)</option>
                                     </select>
                                 </div>
                             </div>
 
-                            <!-- Action Button -->
                             <button id="startStreamBtn" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(0,242,254,0.3)] hover:shadow-[0_0_30px_rgba(0,242,254,0.5)] transition-all">
                                 🎬 Start Visual Broadcast
                             </button>
                         </div>
 
-                        <!-- Live QR Streaming Card (Center Rendered) -->
+                        <!-- Center Stream QR Display -->
                         <div id="qrCard" class="hidden bg-white rounded-2xl p-4 text-center shadow-2xl animate-fade-in my-auto">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Streaming Visual Broadcast</span>
@@ -353,7 +301,7 @@
                         </div>
                     </div>
 
-                    <!-- RECEIVER SECTION CONTROLS -->
+                    <!-- RECEIVER SECTION -->
                     <div id="receiverSection" class="hidden space-y-4">
                         <div class="flex items-center gap-2">
                             <div class="bg-slate-900/60 border border-white/10 rounded-xl p-2.5 w-full">
@@ -369,7 +317,6 @@
                             📷 Open Camera Scanner
                         </button>
 
-                        <!-- Camera Scanner Viewfinder -->
                         <div id="scannerBox" class="hidden">
                             <div id="qrReader"></div>
                             <div class="scanner-reticle">
@@ -379,7 +326,6 @@
                             </div>
                         </div>
 
-                        <!-- Scan Matrix Progress -->
                         <div id="progressBox" class="hidden bg-slate-950/80 border border-white/10 rounded-2xl p-4">
                             <div class="flex justify-between text-xs font-bold mb-2">
                                 <span id="progressTitle" class="text-slate-300">Capturing Stream...</span>
@@ -391,11 +337,11 @@
                             <div id="chunkMatrix" class="flex flex-wrap gap-1 max-h-24 overflow-y-auto p-2 bg-black/50 rounded-lg border border-white/5"></div>
                         </div>
 
-                        <!-- Success Box -->
                         <div id="receivedBox" class="hidden text-center bg-emerald-950/20 border border-emerald-500/30 rounded-2xl p-4 animate-fade-in">
                             <div class="text-sm font-extrabold text-emerald-400 mb-1">🎉 File Reconstructed!</div>
                             <img id="receivedImg" class="hidden max-h-48 mx-auto rounded-xl border border-white/20 my-2" alt="Received">
                             <audio id="receivedAudio" controls class="hidden w-full my-2"></audio>
+                            <video id="receivedVideo" controls class="hidden max-h-48 w-full rounded-xl my-2"></video>
                             <div id="receivedFileInfo" class="text-xs text-slate-400 font-semibold my-2">File Info: N/A</div>
                             <a id="downloadBtn" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg hover:scale-105 transition-transform" download="SonicDrop_File">
                                 💾 Save File
@@ -419,27 +365,24 @@
 
         </div>
 
-        <!-- ================= RECENT TRANSFERS HUD PANEL ================= -->
-        <div class="w-full max-w-xl mt-6">
-            <div class="hud-card rounded-2xl p-4 border border-white/10">
-                <div class="flex items-center justify-between mb-3 border-b border-white/10 pb-2">
-                    <span class="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                        <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-                        Recent Transfers
-                    </span>
-                    <span id="queueCountText" class="text-[10px] text-slate-500 font-bold mono-font">3 ITEMS</span>
-                </div>
-
-                <!-- Recent Queue Items -->
-                <div id="recentTransfersList" class="space-y-3 max-h-48 overflow-y-auto pr-1">
-                    <!-- Dynamic Items render here -->
-                </div>
-            </div>
-        </div>
-
     </div>
 
-    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <!-- Custom Modal Warning Notice -->
+    <div id="customModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-cyan-500/40 rounded-2xl max-w-sm w-full p-5 text-center shadow-2xl space-y-3">
+            <div class="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center mx-auto text-amber-400 text-xl">
+                ⚠️
+            </div>
+            <h3 id="modalTitle" class="text-base font-extrabold text-slate-100">Large File Notice</h3>
+            <p id="modalMsg" class="text-xs text-slate-300 leading-relaxed"></p>
+            <div class="flex gap-2 pt-2">
+                <button id="modalCloseBtn" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider">
+                    I Understand
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         async function compressString(str) {
             const bytes = new TextEncoder().encode(str);
@@ -470,22 +413,13 @@
                         try {
                             new QRious({ element: canvas, size: 280, value: text, level: 'L' });
                             return;
-                        } catch(e) {
-                            console.warn("QRious render error, using canvas fallback:", e);
-                        }
+                        } catch(e) {}
                     }
-                    // Fallback basic QR canvas representation
-                    const ctx = canvas.getContext('2d');
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(0, 0, 280, 280);
-                    ctx.fillStyle = '#000000';
-                    ctx.fillText("Generating QR...", 90, 140);
                 }
             };
         })();
 
         let selectedFile = null;
-        let fileType = 'image';
         let fileMime = '';
         let qrChunks = [];
         let streamInterval = null;
@@ -497,13 +431,6 @@
         let expectedMime = '';
         let expectedName = '';
         let receivedMap = new Map();
-
-        // Recent Transfers State
-        let recentTransfers = [
-            { name: "Project_Docs.zip", size: "450 MB", progress: 45, color: "bg-lime-400" },
-            { name: "Family_Photos.tar", size: "1.5 GB", progress: 30, color: "bg-cyan-400" },
-            { name: "Meeting_Notes.pdf", size: "12 MB", progress: 100, color: "bg-emerald-400" }
-        ];
 
         const senderSection = document.getElementById('senderSection');
         const receiverSection = document.getElementById('receiverSection');
@@ -523,7 +450,13 @@
         const fileNameText = document.getElementById('fileNameText');
         const fileSizeNum = document.getElementById('fileSizeNum');
         const fileSizeUnit = document.getElementById('fileSizeUnit');
+        const estTimeBadge = document.getElementById('estTimeBadge');
         const statCircleBar = document.getElementById('statCircleBar');
+
+        const filePreviewBox = document.getElementById('filePreviewBox');
+        const imgPreviewElem = document.getElementById('imgPreviewElem');
+        const audioPreviewElem = document.getElementById('audioPreviewElem');
+        const videoPreviewElem = document.getElementById('videoPreviewElem');
 
         const imgQualitySelect = document.getElementById('imgQualitySelect');
         const densitySelect = document.getElementById('densitySelect');
@@ -542,8 +475,22 @@
         const receivedBox = document.getElementById('receivedBox');
         const receivedImg = document.getElementById('receivedImg');
         const receivedAudio = document.getElementById('receivedAudio');
+        const receivedVideo = document.getElementById('receivedVideo');
         const receivedFileInfo = document.getElementById('receivedFileInfo');
         const downloadBtn = document.getElementById('downloadBtn');
+
+        const customModal = document.getElementById('customModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMsg = document.getElementById('modalMsg');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+        function showModal(title, msg) {
+            modalTitle.innerText = title;
+            modalMsg.innerText = msg;
+            customModal.classList.remove('hidden');
+        }
+
+        modalCloseBtn.onclick = () => customModal.classList.add('hidden');
 
         function setSendMode() {
             senderSection.classList.remove('hidden');
@@ -586,20 +533,6 @@
         mobileReceiveBtn.onclick = setReceiveMode;
         desktopReceiveBtn.onclick = setReceiveMode;
 
-        // FPS Speed presets
-        document.querySelectorAll('.fps-btn').forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll('.fps-btn').forEach(b => {
-                    b.classList.remove('active', 'bg-cyan-600', 'text-white');
-                    b.classList.add('bg-slate-100', 'text-slate-700');
-                });
-                btn.classList.add('active', 'bg-cyan-600', 'text-white');
-                btn.classList.remove('bg-slate-100', 'text-slate-700');
-                frameDelay = parseInt(btn.getAttribute('data-fps'));
-                if (streamInterval) startStreamAnimation();
-            };
-        });
-
         dropzone.onclick = () => fileInput.click();
         dropzone.ondragover = (e) => { e.preventDefault(); dropzone.classList.add('border-cyan-400'); };
         dropzone.ondragleave = () => { dropzone.classList.remove('border-cyan-400'); };
@@ -613,48 +546,54 @@
             if (e.target.files && e.target.files.length > 0) handleFileSelection(e.target.files[0]);
         };
 
-        densitySelect.onchange = () => {
-            if (selectedFile) handleFileSelection(selectedFile);
-        };
-
-        imgQualitySelect.onchange = () => {
-            if (selectedFile) handleFileSelection(selectedFile);
-        };
-
         function handleFileSelection(file) {
             selectedFile = file;
             fileMime = selectedFile.type || getMimeFromExtension(selectedFile.name);
             
-            // Format File Size
             const sizeInMB = selectedFile.size / (1024 * 1024);
-            if (sizeInMB >= 1000) {
-                fileSizeNum.innerText = (sizeInMB / 1024).toFixed(2);
-                fileSizeUnit.innerText = "GB";
-            } else {
-                fileSizeNum.innerText = sizeInMB.toFixed(2);
-                fileSizeUnit.innerText = "MB";
-            }
+            fileSizeNum.innerText = sizeInMB >= 1000 ? (sizeInMB / 1024).toFixed(2) : sizeInMB.toFixed(2);
+            fileSizeUnit.innerText = sizeInMB >= 1000 ? "GB" : "MB";
 
-            // Animate Circle Arc
             statCircleBar.style.strokeDashoffset = "50";
-
             fileNameText.innerText = `${selectedFile.name} (${Math.round(selectedFile.size/1024)} KB)`;
 
-            const isAudio = fileMime.startsWith('audio/') || selectedFile.name.match(/\.(mp3|wav|ogg|m4a|aac|flac)$/i);
+            filePreviewBox.classList.remove('hidden');
+            imgPreviewElem.classList.add('hidden');
+            audioPreviewElem.classList.add('hidden');
+            videoPreviewElem.classList.add('hidden');
 
-            if (isAudio) {
-                fileType = 'audio';
+            const isAudio = fileMime.startsWith('audio/') || selectedFile.name.match(/\.(mp3|wav|ogg|m4a|aac|flac)$/i);
+            const isVideo = fileMime.startsWith('video/') || selectedFile.name.match(/\.(mp4|webm|mov|mkv|avi)$/i);
+
+            if (isVideo) {
+                if (!fileMime.startsWith('video/')) fileMime = 'video/mp4';
+                videoPreviewElem.src = URL.createObjectURL(selectedFile);
+                videoPreviewElem.classList.remove('hidden');
+
+                if (sizeInMB > 2.0) {
+                    showModal("Video Limit Notice", `Video size is ${sizeInMB.toFixed(2)} MB. Visual QR streams work best with micro video clips under 1.5 MB. Transfer may take a long time.`);
+                }
+                processGenericFileChunking();
+            } else if (isAudio) {
                 if (!fileMime.startsWith('audio/')) fileMime = 'audio/mpeg';
-                processAudioChunking();
+                audioPreviewElem.src = URL.createObjectURL(selectedFile);
+                audioPreviewElem.classList.remove('hidden');
+
+                if (sizeInMB > 1.8) {
+                    showModal("Audio Limit Notice", `Audio file is ${sizeInMB.toFixed(2)} MB. Visual QR streams work best for short audio/voice clips under 1.5 MB.`);
+                }
+                processGenericFileChunking();
             } else {
-                fileType = 'image';
                 if (!fileMime.startsWith('image/')) fileMime = 'image/jpeg';
+                imgPreviewElem.classList.remove('hidden');
+
                 const reader = new FileReader();
-                reader.onload = (evt) => compressAndChunkImage(evt.target.result);
+                reader.onload = (evt) => {
+                    imgPreviewElem.src = evt.target.result;
+                    compressAndChunkImage(evt.target.result);
+                };
                 reader.readAsDataURL(selectedFile);
             }
-
-            addRecentTransfer(selectedFile.name, `${fileSizeNum.innerText} ${fileSizeUnit.innerText}`, 0, "bg-cyan-400");
         }
 
         function compressAndChunkImage(dataUrl) {
@@ -683,8 +622,8 @@
             img.src = dataUrl;
         }
 
-        function processAudioChunking() {
-            updateStatus("Deflating Audio Payload...", "transmitting");
+        function processGenericFileChunking() {
+            updateStatus("Deflating Media Payload...", "transmitting");
             const reader = new FileReader();
             reader.onload = async (e) => {
                 const deflatedPayload = await compressString(e.target.result);
@@ -699,28 +638,38 @@
             for (let i = 0; i < payloadData.length; i += limit) {
                 qrChunks.push(payloadData.substring(i, i + limit));
             }
+
+            const fps = 10;
+            const estSeconds = Math.round(qrChunks.length / fps);
+            estTimeBadge.innerText = `Est. ~${estSeconds} sec`;
+
             updateStatus(`Ready! Created ${qrChunks.length} Visual Frames`, "active");
         }
 
         startStreamBtn.onclick = () => {
             if (!selectedFile || qrChunks.length === 0) {
-                updateStatus("Please pick a file first!", "error");
+                showModal("No File Selected", "Please choose a photo, audio, or video file to broadcast.");
                 return;
             }
 
-            if (senderControls) senderControls.classList.add('hidden');
+            senderControls.classList.add('hidden');
             qrCard.classList.remove('hidden');
             startStreamAnimation();
             updateStatus(`Broadcasting ${qrChunks.length} Frames`, "transmitting");
-
-            qrCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
         };
 
-        if (stopStreamBtn) {
-            stopStreamBtn.onclick = () => {
-                stopStream();
+        stopStreamBtn.onclick = () => {
+            stopStream();
+        };
+
+        document.querySelectorAll('.fps-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.fps-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                frameDelay = parseInt(btn.getAttribute('data-fps'));
+                if (streamInterval) startStreamAnimation();
             };
-        }
+        });
 
         function startStreamAnimation() {
             if (streamInterval) clearInterval(streamInterval);
@@ -753,7 +702,7 @@
                 streamInterval = null;
             }
             qrCard.classList.add('hidden');
-            if (senderControls) senderControls.classList.remove('hidden');
+            senderControls.classList.remove('hidden');
             if (!receiverSection.classList.contains('hidden')) return;
             updateStatus("Select file to broadcast", "ready");
         }
@@ -780,7 +729,7 @@
                     { fps: 30, qrbox: { width: 240, height: 240 }, aspectRatio: 1.0 },
                     onQrCodeScanned
                 ).catch((err) => {
-                    updateStatus("Camera Access Error! Check permissions.", "error");
+                    showModal("Camera Error", "Could not access camera. Please check camera permissions in browser.");
                     scannerBox.classList.add('hidden');
                 });
             }
@@ -849,12 +798,17 @@
 
                 receivedFileInfo.innerText = `Name: ${expectedName || 'SonicDrop_File'} | Size: ~${kbSize} KB`;
 
-                if (expectedMime.startsWith('audio/')) {
-                    receivedImg.classList.add('hidden');
+                receivedImg.classList.add('hidden');
+                receivedAudio.classList.add('hidden');
+                receivedVideo.classList.add('hidden');
+
+                if (expectedMime.startsWith('video/')) {
+                    receivedVideo.classList.remove('hidden');
+                    receivedVideo.src = fullBase64;
+                } else if (expectedMime.startsWith('audio/')) {
                     receivedAudio.classList.remove('hidden');
                     receivedAudio.src = fullBase64;
                 } else {
-                    receivedAudio.classList.add('hidden');
                     receivedImg.classList.remove('hidden');
                     receivedImg.src = fullBase64;
                 }
@@ -866,7 +820,6 @@
                 receivedBox.classList.remove('hidden');
 
                 updateStatus("Transfer Successful!", "active");
-                addRecentTransfer(expectedName || 'Received_File', `~${kbSize} KB`, 100, "bg-emerald-400");
             } catch(err) {
                 console.error("Decompression Error:", err);
                 updateStatus("Error decompressing payload!", "error");
@@ -892,36 +845,9 @@
             const ext = (name || '').split('.').pop().toLowerCase();
             if (['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'].includes(ext)) return 'audio/' + (ext === 'mp3' ? 'mpeg' : ext);
             if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext)) return 'image/' + (ext === 'jpg' ? 'jpeg' : ext);
+            if (['mp4', 'webm', 'mov', 'mkv', 'avi'].includes(ext)) return 'video/' + (ext === 'mp4' ? 'mp4' : ext);
             return 'application/octet-stream';
         }
-
-        function addRecentTransfer(name, size, progress, color) {
-            recentTransfers.unshift({ name, size, progress, color });
-            if (recentTransfers.length > 5) recentTransfers.pop();
-            renderRecentTransfers();
-        }
-
-        function renderRecentTransfers() {
-            const list = document.getElementById('recentTransfersList');
-            document.getElementById('queueCountText').innerText = `${recentTransfers.length} ITEMS`;
-            list.innerHTML = recentTransfers.map(item => `
-                <div class="bg-slate-900/40 p-2.5 rounded-xl border border-white/5 flex flex-col gap-1.5">
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="font-bold text-slate-200 truncate max-w-[200px]">${item.name}</span>
-                        <div class="flex items-center gap-2">
-                            ${item.progress > 0 ? `<span class="text-slate-400 text-[10px] font-bold">${item.progress}%</span>` : ''}
-                            <span class="text-pink-400 font-bold text-[11px] mono-font">${item.size}</span>
-                        </div>
-                    </div>
-                    <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-                        <div class="h-full w-[${item.progress}%] ${item.color} rounded-full"></div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Initial render
-        renderRecentTransfers();
     </script>
 </body>
 </html>
