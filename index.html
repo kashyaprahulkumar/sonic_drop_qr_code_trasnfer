@@ -165,10 +165,23 @@
             filter: drop-shadow(0px 0px 8px var(--cyan-glow));
         }
 
-        .grid-2x2 {
+        /* Tightly packed 2x2 Quad Grid styling */
+        .quad-grid-container {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
+            gap: 2px;
+            background: #ffffff;
+            padding: 4px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .quad-grid-canvas {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1 / 1;
+            display: block;
+            image-rendering: pixelated;
         }
 
         .badge-tag {
@@ -315,10 +328,10 @@
                                     <div id="fileTypeTextDisplay" class="text-xs font-bold text-cyan-400 pt-1">Direct Binary Deflate</div>
                                 </div>
                                 <div class="bg-slate-900/60 border border-white/10 rounded-xl p-2.5">
-                                    <label for="gridModeSelect" class="block text-[10px] font-bold text-slate-400 mb-1">🔲 QR Layout Mode</label>
+                                    <label for="gridModeSelect" class="block text-[10px] font-bold text-slate-400 mb-1">🔲 Stream Layout Mode</label>
                                     <select id="gridModeSelect" class="w-full bg-slate-950 text-cyan-400 font-bold text-xs p-1.5 rounded-lg border border-white/10 outline-none">
                                         <option value="1x1" selected>1x1 Single QR (Recommended)</option>
-                                        <option value="2x2">2x2 Quad Grid (Experimental)</option>
+                                        <option value="2x2">2x2 Tightly Packed Quad Grid</option>
                                     </select>
                                 </div>
                             </div>
@@ -339,15 +352,15 @@
 
                             <!-- Single Canvas Container -->
                             <div id="singleCanvasBox" class="my-2">
-                                <canvas id="qrCanvas" width="280" height="280" class="mx-auto rounded-lg max-w-[260px] w-full h-auto"></canvas>
+                                <canvas id="qrCanvas" width="280" height="280" class="mx-auto rounded-lg max-w-[280px] w-full h-auto"></canvas>
                             </div>
 
-                            <!-- 2x2 Grid Container -->
-                            <div id="gridCanvasBox" class="hidden grid-2x2 my-2 max-w-[280px] mx-auto">
-                                <canvas id="qrCanvas0" width="130" height="130" class="w-full rounded-md border border-slate-200"></canvas>
-                                <canvas id="qrCanvas1" width="130" height="130" class="w-full rounded-md border border-slate-200"></canvas>
-                                <canvas id="qrCanvas2" width="130" height="130" class="w-full rounded-md border border-slate-200"></canvas>
-                                <canvas id="qrCanvas3" width="130" height="130" class="w-full rounded-md border border-slate-200"></canvas>
+                            <!-- Enriched 2x2 Tightly Packed Quad Grid Container -->
+                            <div id="gridCanvasBox" class="hidden quad-grid-container my-2 max-w-[320px] mx-auto">
+                                <canvas id="qrCanvas0" width="150" height="150" class="quad-grid-canvas rounded-tl-lg"></canvas>
+                                <canvas id="qrCanvas1" width="150" height="150" class="quad-grid-canvas rounded-tr-lg"></canvas>
+                                <canvas id="qrCanvas2" width="150" height="150" class="quad-grid-canvas rounded-bl-lg"></canvas>
+                                <canvas id="qrCanvas3" width="150" height="150" class="quad-grid-canvas rounded-br-lg"></canvas>
                             </div>
 
                             <div id="frameInfoText" class="text-sm font-extrabold text-cyan-600 mono-font">Fountain Drops Transmitting...</div>
@@ -380,7 +393,7 @@
                         <div id="scannerBox" class="hidden">
                             <div id="qrReader"></div>
                             <div class="scanner-reticle">
-                                <div class="w-[70%] h-[70%] border-2 border-cyan-400/80 rounded-2xl relative shadow-[0_0_0_4000px_rgba(0,0,0,0.5)]">
+                                <div class="w-[85%] h-[85%] border-2 border-cyan-400/80 rounded-2xl relative shadow-[0_0_0_4000px_rgba(0,0,0,0.5)]">
                                     <div class="scan-laser"></div>
                                 </div>
                             </div>
@@ -503,6 +516,7 @@
             return new Uint8Array(bytes);
         }
 
+
         // Direct Deflate Raw Compression
         async function compressArrayBuffer(arrayBuf) {
             const cs = new CompressionStream('deflate-raw');
@@ -521,6 +535,7 @@
             const decompressedBuf = await new Response(ds.readable).arrayBuffer();
             return new Blob([decompressedBuf], { type: mimeType });
         }
+
 
         // METHOD 2: FOUNTAIN CODES / LUBY TRANSFORM (XOR PARITY DROPS) WITH UNIFORM BYTE LENGTH
         function xorBase45Chunks(chunk1, chunk2) {
@@ -541,7 +556,6 @@
             if (dropIndex < K) {
                 return { indices: [dropIndex], data: originalChunks[dropIndex] };
             }
-            // Generate pseudo-random combination
             let seed = (dropIndex * 2654435761) >>> 0;
             const pseudoRandom = () => {
                 seed = (seed ^ (seed << 13)) >>> 0;
@@ -620,6 +634,7 @@
             }
         }
 
+
         // METHOD 4: LOWEST ERROR CORRECTION LEVEL 'L' (7%) QR RENDERER
         const PureQREngine = (function() {
             return {
@@ -649,6 +664,7 @@
         let expectedMime = '';
         let expectedName = '';
         let peelingDecoder = null;
+
 
         // UI DOM Elements
         const senderSection = document.getElementById('senderSection');
@@ -826,6 +842,7 @@
             if (streamInterval) startStreamAnimation();
         };
 
+
         async function handleTextSelection() {
             const val = textInputArea.value.trim();
             if (!val) {
@@ -939,11 +956,11 @@
             reader.readAsArrayBuffer(fileObj);
         }
 
-        // Uniform Fixed Byte Chunking to prevent XOR length mismatches and decompression errors
+
+        // Uniform Fixed Byte Chunking
         function chunkPayloadBytes(compressedBytes) {
             totalCompressedBytes = compressedBytes.byteLength;
             
-            // Update UI gauge to reflect ACTUAL payload size being sent
             const sizeInKB = totalCompressedBytes / 1024;
             const sizeInMB = sizeInKB / 1024;
             if (sizeInMB >= 1) {
@@ -954,7 +971,6 @@
                 fileSizeUnit.innerText = "KB";
             }
 
-            // Exactly 220 bytes per chunk -> Produces exactly 330 Base45 chars per QR
             const CHUNK_BYTE_SIZE = 220;
             const K = Math.ceil(totalCompressedBytes / CHUNK_BYTE_SIZE);
 
@@ -1003,6 +1019,7 @@
             };
         });
 
+
         function startStreamAnimation() {
             if (streamInterval) clearInterval(streamInterval);
             currentDropIdx = 0;
@@ -1023,6 +1040,7 @@
             const renderFrame = () => {
                 try {
                     if (gridMode === '2x2') {
+                        // Render 4 tightly packed Fountain drops simultaneously
                         for (let g = 0; g < 4; g++) {
                             const drop = generateFountainDrop(base45Chunks, currentDropIdx + g);
                             const indicesStr = drop.indices.join('+');
@@ -1062,6 +1080,7 @@
             updateStatus("Select file or type text to broadcast", "ready");
         }
 
+
         startScanBtn.onclick = () => { openCameraScanner(); };
 
         function openCameraScanner() {
@@ -1080,9 +1099,10 @@
             if (typeof Html5Qrcode !== 'undefined') {
                 if (!qrScanner) qrScanner = new Html5Qrcode("qrReader");
 
+                // Full-frame scanner box for multi-drop capture
                 qrScanner.start(
                     { facingMode: chosenFacingMode },
-                    { fps: 30, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
+                    { fps: 30, qrbox: { width: 300, height: 300 }, aspectRatio: 1.0 },
                     onQrCodeScanned
                 ).catch((err) => {
                     showModal("Camera Error", "Could not access camera. Please check camera permissions in browser.");
@@ -1158,6 +1178,7 @@
             }
         }
 
+
         async function reconstructFile() {
             updateStatus("Decompressing Base45 Fountain Payload...", "active");
 
@@ -1169,7 +1190,6 @@
 
                 const decodedBytes = decodeBase45(fullBase45Str);
                 
-                // Trim trailing padding bytes to get exact original compressed stream
                 const exactCompressedBytes = (expectedBytes > 0 && expectedBytes <= decodedBytes.byteLength)
                     ? decodedBytes.subarray(0, expectedBytes)
                     : decodedBytes;
