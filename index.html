@@ -635,10 +635,10 @@
 
         const ACOUSTIC_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
         const FREQ_BASE = 1200;
-        const FREQ_STEP = 35;
-        const PREAMBLE_FREQ = 1000;
+        const FREQ_STEP = 70; // 70 Hz step for distinct FFT bin separation
+        const PREAMBLE_FREQ = 950;
 
-        function playSonicTone(freq, duration = 0.08) {
+        function playSonicTone(freq, duration = 0.12) {
             if (!sonicEnabled) return;
             try {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -647,13 +647,16 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'sine';
-                osc.frequency.value = freq;
-                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                
+                // Clear, crisp acoustic tone burst
+                gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.35, audioCtx.currentTime + 0.01);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
 
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
-                osc.start();
+                osc.start(audioCtx.currentTime);
                 osc.stop(audioCtx.currentTime + duration);
             } catch(e) {}
         }
@@ -663,20 +666,20 @@
             if (!sonicEnabled) return;
             stopSonicPairBroadcast();
 
-            const cleanStr = codeStr.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 8);
+            const cleanStr = codeStr.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 6);
             let index = 0;
 
             const transmitStep = () => {
                 if (!sonicEnabled) return;
                 
                 if (index === 0) {
-                    playSonicTone(PREAMBLE_FREQ, 0.15); // Preamble start marker
+                    playSonicTone(PREAMBLE_FREQ, 0.18); // Long preamble marker
                 } else {
                     const char = cleanStr[index - 1];
                     const charIdx = ACOUSTIC_ALPHABET.indexOf(char);
                     if (charIdx !== -1) {
                         const freq = FREQ_BASE + (charIdx * FREQ_STEP);
-                        playSonicTone(freq, 0.11);
+                        playSonicTone(freq, 0.13);
                     }
                 }
 
@@ -687,7 +690,7 @@
             };
 
             transmitStep();
-            sonicLoopTimer = setInterval(transmitStep, 140);
+            sonicLoopTimer = setInterval(transmitStep, 190);
         }
 
         function stopSonicPairBroadcast() {
@@ -706,6 +709,7 @@
 
         let accumulatedSonicChars = "";
         let sonicLastCharTime = 0;
+        let sonicPreambleDetectedTime = 0;
         let sonicPairTriggered = false;
 
         async function startSonicReceiver() {
@@ -714,16 +718,22 @@
                 if (!sonicRecContext) sonicRecContext = new (window.AudioContext || window.webkitAudioContext)();
                 if (sonicRecContext.state === 'suspended') await sonicRecContext.resume();
 
-                sonicMicStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                sonicMicStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } 
+                });
                 const source = sonicRecContext.createMediaStreamSource(sonicMicStream);
                 sonicAnalyser = sonicRecContext.createAnalyser();
-                sonicAnalyser.fftSize = 1024;
+                sonicAnalyser.fftSize = 2048; // High resolution FFT for precise frequency detection
+                sonicAnalyser.smoothingTimeConstant = 0.2;
                 source.connect(sonicAnalyser);
 
+                sonicPairTriggered = false;
+                accumulatedSonicChars = "";
                 drawSonicSpectrum();
             } catch(e) {
                 console.warn("Sonic Listener Mic Permission Denied / Error:", e);
-                document.getElementById('sonicFreqLabel').innerText = "Mic Offline";
+                const label = document.getElementById('sonicFreqLabel');
+                if (label) label.innerText = "Mic Offline / Access Denied";
             }
         }
 
@@ -742,59 +752,77 @@
                 ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                const barWidth = (canvas.width / bufferLength) * 2.5;
-                let x = 0;
+                const sampleRate = sonicRecContext.sampleRate || 48000;
+                const binWidth = sampleRate / sonicAnalyser.fftSize; // ~23.4 Hz per bin
+
+                const minBin = Math.floor(850 / binWidth);
+                const maxBinSearch = Math.ceil(3800 / binWidth);
+
                 let maxVal = 0;
-                let maxFreqHz = 0;
+                let maxBin = -1;
 
-                const nyquist = sonicRecContext.sampleRate / 2;
+                const barWidth = (canvas.width / (maxBinSearch - minBin));
+                let x = 0;
 
-                for (let i = 0; i < bufferLength; i++) {
+                for (let i = minBin; i <= maxBinSearch; i++) {
                     const barHeight = (dataArray[i] / 255) * canvas.height;
-                    const freqHz = (i / bufferLength) * nyquist;
 
-                    if (freqHz >= 950 && freqHz <= 2500) {
-                        ctx.fillStyle = `rgb(${dataArray[i] + 50}, 242, 254)`;
-                        if (dataArray[i] > maxVal) {
-                            maxVal = dataArray[i];
-                            maxFreqHz = Math.round(freqHz);
-                        }
-                    } else {
-                        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+                    if (dataArray[i] > maxVal) {
+                        maxVal = dataArray[i];
+                        maxBin = i;
                     }
 
+                    ctx.fillStyle = dataArray[i] > 45 ? 'rgb(0, 242, 254)' : 'rgba(255, 255, 255, 0.15)';
                     ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-                    x += barWidth + 1;
+                    x += barWidth;
                 }
 
-                // Decode incoming acoustic tones
-                if (maxVal > 150) {
+                const labelElem = document.getElementById('sonicFreqLabel');
+
+                // Tone Detection with High Precision FFT Peak Slicing
+                if (maxVal > 45 && maxBin > 0) {
+                    const detectedFreqHz = Math.round(maxBin * binWidth);
                     const now = Date.now();
-                    document.getElementById('sonicFreqLabel').innerText = `🎵 Tone Detected: ${maxFreqHz} Hz`;
 
-                    // Check for preamble (1000 Hz)
-                    if (Math.abs(maxFreqHz - PREAMBLE_FREQ) < 25) {
-                        accumulatedSonicChars = "";
-                        sonicLastCharTime = now;
-                    } else if (now - sonicLastCharTime > 90) { // Debounce tone intervals
-                        const charIdx = Math.round((maxFreqHz - FREQ_BASE) / FREQ_STEP);
+                    // Check for Preamble Tone (950 Hz)
+                    if (Math.abs(detectedFreqHz - PREAMBLE_FREQ) < 45) {
+                        if (now - sonicPreambleDetectedTime > 600) {
+                            accumulatedSonicChars = "";
+                            sonicPreambleDetectedTime = now;
+                            sonicLastCharTime = now;
+                        }
+                    } else if (now - sonicPreambleDetectedTime < 4000 && now - sonicLastCharTime > 130) {
+                        // Decode FSK Character Frequency
+                        const charIdx = Math.round((detectedFreqHz - FREQ_BASE) / FREQ_STEP);
                         if (charIdx >= 0 && charIdx < ACOUSTIC_ALPHABET.length) {
-                            const detectedChar = ACOUSTIC_ALPHABET[charIdx];
-                            if (accumulatedSonicChars.slice(-1) !== detectedChar) {
-                                accumulatedSonicChars += detectedChar;
-                                sonicLastCharTime = now;
+                            const targetFreq = FREQ_BASE + (charIdx * FREQ_STEP);
+                            if (Math.abs(detectedFreqHz - targetFreq) <= 35) {
+                                const detectedChar = ACOUSTIC_ALPHABET[charIdx];
+                                
+                                if (accumulatedSonicChars.slice(-1) !== detectedChar) {
+                                    accumulatedSonicChars += detectedChar;
+                                    sonicLastCharTime = now;
 
-                                if (accumulatedSonicChars.length === 6 && !sonicPairTriggered) {
-                                    sonicPairTriggered = true;
-                                    const peerIdStr = `sonic-${accumulatedSonicChars}`;
-                                    document.getElementById('sonicFreqLabel').innerText = `🎉 Sound Paired! ID: ${accumulatedSonicChars}`;
-                                    autoConnectViaSonicSound(peerIdStr);
+                                    if (labelElem) {
+                                        labelElem.innerText = `🎵 Tones: [ ${accumulatedSonicChars.toUpperCase()} ] (${detectedFreqHz} Hz)`;
+                                    }
+
+                                    if (accumulatedSonicChars.length === 6 && !sonicPairTriggered) {
+                                        sonicPairTriggered = true;
+                                        const peerIdStr = `sonic-${accumulatedSonicChars}`;
+                                        if (labelElem) {
+                                            labelElem.innerText = `🎉 Sound Paired! Code: ${accumulatedSonicChars.toUpperCase()}`;
+                                        }
+                                        autoConnectViaSonicSound(peerIdStr);
+                                    }
                                 }
                             }
                         }
+                    } else if (!sonicPairTriggered && labelElem && accumulatedSonicChars.length < 6) {
+                        labelElem.innerText = `🎵 Tone: ${detectedFreqHz} Hz | Code: [ ${accumulatedSonicChars.toUpperCase()} ]`;
                     }
-                } else {
-                    document.getElementById('sonicFreqLabel').innerText = "Listening for Acoustic Pairing...";
+                } else if (!sonicPairTriggered && labelElem && accumulatedSonicChars.length === 0) {
+                    labelElem.innerText = "Listening for Acoustic Tone Pairing...";
                 }
             };
 
