@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SonicDrop Turbo - Fountain & Base45 Visual Stream</title>
+    <title>SonicDrop Turbo - P2P & Visual Stream</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Standalone Fast Reader & QR Generator Libraries -->
+    <!-- Standalone QR Libraries & PeerJS for WebRTC Direct Transfer -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
@@ -109,7 +110,7 @@
         #scannerBox {
             aspect-ratio: 1 / 1;
             width: 100%;
-            max-width: 360px;
+            max-width: 340px;
             margin: 0 auto;
             border-radius: 20px;
             overflow: hidden;
@@ -165,25 +166,6 @@
             filter: drop-shadow(0px 0px 8px var(--cyan-glow));
         }
 
-        /* Tightly packed 2x2 Quad Grid styling */
-        .quad-grid-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 2px;
-            background: #ffffff;
-            padding: 4px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .quad-grid-canvas {
-            width: 100%;
-            height: auto;
-            aspect-ratio: 1 / 1;
-            display: block;
-            image-rendering: pixelated;
-        }
-
         .badge-tag {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -202,10 +184,10 @@
         <div class="text-center mb-6">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-950/20 mb-2">
                 <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-                <span class="text-xs font-bold text-cyan-400 uppercase tracking-widest mono-font">SonicDrop Turbo • Fountain + Base45 Stream</span>
+                <span class="text-xs font-bold text-cyan-400 uppercase tracking-widest mono-font">SonicDrop Turbo • WebRTC P2P + Fountain Engine</span>
             </div>
             <h1 class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-100 via-cyan-300 to-pink-500">
-                Turbo Visual Stream
+                Turbo Transfer Hub
             </h1>
         </div>
 
@@ -229,7 +211,7 @@
                     </svg>
                     <span class="text-sm font-extrabold text-cyan-400 tracking-wider">SEND</span>
                 </button>
-                <span class="text-[11px] text-slate-400 mt-3 font-semibold uppercase tracking-wider">Transmit Fountain Stream</span>
+                <span class="text-[11px] text-slate-400 mt-3 font-semibold uppercase tracking-wider">Transmit File Stream</span>
             </div>
 
             <!-- CENTER MAIN HUD PANEL -->
@@ -247,12 +229,22 @@
                     <!-- SENDER SECTION -->
                     <div id="senderSection" class="space-y-4">
                         
-                        <!-- Input Type Selector Tabs -->
+                        <!-- Transfer Protocol Selector Tabs -->
                         <div class="flex bg-slate-950 p-1 rounded-xl border border-white/10">
-                            <button id="mediaTabBtn" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-cyan-400 bg-slate-800/80 transition-all">
+                            <button id="p2pModeBtn" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-cyan-400 bg-slate-800/80 transition-all">
+                                🚀 WebRTC Direct (Fastest)
+                            </button>
+                            <button id="visualModeBtn" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition-all">
+                                ☔ Optical Visual Stream
+                            </button>
+                        </div>
+
+                        <!-- Input Type Tabs -->
+                        <div class="flex bg-slate-900/60 p-1 rounded-xl border border-white/5">
+                            <button id="mediaTabBtn" class="flex-1 py-1 rounded-md text-[11px] font-bold text-cyan-300 bg-slate-800 transition-all">
                                 📁 File / Media
                             </button>
-                            <button id="textTabBtn" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition-all">
+                            <button id="textTabBtn" class="flex-1 py-1 rounded-md text-[11px] font-bold text-slate-400 hover:text-slate-200 transition-all">
                                 📝 Text / URL
                             </button>
                         </div>
@@ -262,24 +254,24 @@
                             
                             <!-- Circular Gauge & Time Estimate -->
                             <div class="flex items-center justify-center my-2 relative">
-                                <div class="relative w-36 h-36 flex items-center justify-center">
+                                <div class="relative w-32 h-32 flex items-center justify-center">
                                     <svg class="w-full h-full stat-circle-svg" viewBox="0 0 100 100">
                                         <circle class="stat-circle-bg" cx="50" cy="50" r="42" stroke-width="6" fill="none" />
                                         <circle id="statCircleBar" class="stat-circle-bar" cx="50" cy="50" r="42" stroke-width="6" fill="none" />
                                     </svg>
                                     <div class="absolute text-center flex flex-col items-center justify-center">
-                                        <span id="fileSizeNum" class="text-2xl font-black text-cyan-400 mono-font leading-none">0.00</span>
-                                        <span id="fileSizeUnit" class="text-xs font-extrabold text-cyan-300 mt-1">KB</span>
-                                        <span id="estTimeBadge" class="text-[10px] text-amber-400 font-bold mt-1 uppercase tracking-tight">Est. ~0 sec</span>
+                                        <span id="fileSizeNum" class="text-xl font-black text-cyan-400 mono-font leading-none">0.00</span>
+                                        <span id="fileSizeUnit" class="text-[10px] font-extrabold text-cyan-300 mt-0.5">KB</span>
+                                        <span id="estTimeBadge" class="text-[9px] text-amber-400 font-bold mt-1 uppercase tracking-tight">Est. Instant</span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Speed Booster Feature Badges -->
                             <div class="flex flex-wrap items-center justify-center gap-1.5 text-center">
-                                <span class="badge-tag text-cyan-300 border-cyan-500/30 bg-cyan-950/40">⚡ Base45 (+45% Density)</span>
-                                <span class="badge-tag text-purple-300 border-purple-500/30 bg-purple-950/40">☔ Fountain Parity Drops</span>
-                                <span class="badge-tag text-emerald-300 border-emerald-500/30 bg-emerald-950/40">🛡️ EC Level L (7%)</span>
+                                <span class="badge-tag text-cyan-300 border-cyan-500/30 bg-cyan-950/40">⚡ Base45 Alphanumeric</span>
+                                <span class="badge-tag text-purple-300 border-purple-500/30 bg-purple-950/40">🚀 WebRTC Direct P2P</span>
+                                <span class="badge-tag text-emerald-300 border-emerald-500/30 bg-emerald-950/40">🗜️ Deflate-Raw Byte Compression</span>
                             </div>
 
                             <!-- MEDIA DROPZONE CONTAINER -->
@@ -314,13 +306,12 @@
 
                             <div class="grid grid-cols-2 gap-2 text-left">
                                 <div id="imgQualityBox" class="bg-slate-900/60 border border-white/10 rounded-xl p-2.5">
-                                    <label for="imgQualitySelect" class="block text-[10px] font-bold text-slate-400 mb-1">🖼️ Image Quality</label>
+                                    <label for="imgQualitySelect" class="block text-[10px] font-bold text-slate-400 mb-1">🖼️ Photo Quality</label>
                                     <select id="imgQualitySelect" class="w-full bg-slate-950 text-cyan-400 font-bold text-xs p-1.5 rounded-lg border border-white/10 outline-none">
-                                        <option value="raw">Original Quality (RAW - Exact Bytes)</option>
-                                        <option value="1080">1080p Full HD (High Detail)</option>
-                                        <option value="800" selected>800p HD (Balanced - Recommended)</option>
-                                        <option value="600">600p Fast Stream</option>
-                                        <option value="400">400p Ultra Fast</option>
+                                        <option value="raw">Original Quality (RAW Bytes)</option>
+                                        <option value="1080">1080p Full HD</option>
+                                        <option value="800" selected>800p HD (Recommended)</option>
+                                        <option value="600">600p Fast Transfer</option>
                                     </select>
                                 </div>
                                 <div id="fileInfoTypeBox" class="hidden bg-slate-900/60 border border-white/10 rounded-xl p-2.5">
@@ -328,44 +319,37 @@
                                     <div id="fileTypeTextDisplay" class="text-xs font-bold text-cyan-400 pt-1">Direct Binary Deflate</div>
                                 </div>
                                 <div class="bg-slate-900/60 border border-white/10 rounded-xl p-2.5">
-                                    <label for="gridModeSelect" class="block text-[10px] font-bold text-slate-400 mb-1">🔲 Stream Layout Mode</label>
-                                    <select id="gridModeSelect" class="w-full bg-slate-950 text-cyan-400 font-bold text-xs p-1.5 rounded-lg border border-white/10 outline-none">
-                                        <option value="1x1" selected>1x1 Single QR (Recommended)</option>
-                                        <option value="2x2">2x2 Tightly Packed Quad Grid</option>
+                                    <label for="chunkSizeSelect" class="block text-[10px] font-bold text-slate-400 mb-1">⚡ QR Density</label>
+                                    <select id="chunkSizeSelect" class="w-full bg-slate-950 text-cyan-400 font-bold text-xs p-1.5 rounded-lg border border-white/10 outline-none">
+                                        <option value="180">⚡ Micro-Burst (Fastest Scan)</option>
+                                        <option value="260" selected>⚖️ Balanced Mode</option>
+                                        <option value="420">📦 High Capacity</option>
                                     </select>
                                 </div>
                             </div>
 
                             <button id="startStreamBtn" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 text-slate-950 font-black text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(0,242,254,0.4)] hover:shadow-[0_0_35px_rgba(0,242,254,0.6)] transition-all">
-                                🚀 Start Visual Broadcast
+                                🚀 Start Broadcast / Pair
                             </button>
                         </div>
 
                         <!-- Center Stream QR Display -->
                         <div id="qrCard" class="hidden bg-white rounded-2xl p-4 text-center shadow-2xl animate-fade-in my-auto">
                             <div class="flex items-center justify-between mb-2">
-                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Fountain Stream • Zero Missed Loop Delay</span>
+                                <span id="qrCardTitle" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">1-Scan Connection QR Code</span>
                                 <button id="stopStreamBtn" class="px-2.5 py-1 bg-rose-100 hover:bg-rose-200 text-rose-700 text-[10px] font-extrabold rounded-lg transition-colors flex items-center gap-1">
-                                    ✕ Stop Stream
+                                    ✕ Stop / Change File
                                 </button>
                             </div>
 
-                            <!-- Single Canvas Container -->
+                            <!-- Canvas Container -->
                             <div id="singleCanvasBox" class="my-2">
                                 <canvas id="qrCanvas" width="280" height="280" class="mx-auto rounded-lg max-w-[280px] w-full h-auto"></canvas>
                             </div>
 
-                            <!-- Enriched 2x2 Tightly Packed Quad Grid Container -->
-                            <div id="gridCanvasBox" class="hidden quad-grid-container my-2 max-w-[320px] mx-auto">
-                                <canvas id="qrCanvas0" width="150" height="150" class="quad-grid-canvas rounded-tl-lg"></canvas>
-                                <canvas id="qrCanvas1" width="150" height="150" class="quad-grid-canvas rounded-tr-lg"></canvas>
-                                <canvas id="qrCanvas2" width="150" height="150" class="quad-grid-canvas rounded-bl-lg"></canvas>
-                                <canvas id="qrCanvas3" width="150" height="150" class="quad-grid-canvas rounded-br-lg"></canvas>
-                            </div>
+                            <div id="frameInfoText" class="text-sm font-extrabold text-cyan-600 mono-font">Scan with Receiver Camera</div>
 
-                            <div id="frameInfoText" class="text-sm font-extrabold text-cyan-600 mono-font">Fountain Drops Transmitting...</div>
-
-                            <div class="flex justify-center gap-1.5 mt-3">
+                            <div id="fpsContainer" class="hidden justify-center gap-1.5 mt-3">
                                 <button class="fps-btn px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700" data-fps="200">5 FPS</button>
                                 <button class="fps-btn active px-2.5 py-1 rounded-md text-[10px] font-bold bg-cyan-600 text-white shadow-sm" data-fps="100">10 FPS</button>
                                 <button class="fps-btn px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700" data-fps="66">15 FPS</button>
@@ -401,7 +385,7 @@
 
                         <div id="progressBox" class="hidden bg-slate-950/80 border border-white/10 rounded-2xl p-4">
                             <div class="flex justify-between text-xs font-bold mb-2">
-                                <span id="progressTitle" class="text-slate-300">Capturing Stream...</span>
+                                <span id="progressTitle" class="text-slate-300">Connecting / Receiving...</span>
                                 <span id="progressPercent" class="text-emerald-400 mono-font">0%</span>
                             </div>
                             <div class="w-full h-2.5 bg-white/10 rounded-full overflow-hidden mb-3">
@@ -470,8 +454,7 @@
     </div>
 
     <script>
-        
-        // METHOD 1: BASE45 ENCODER / DECODER (RFC 9285 - QR Alphanumeric Mode Optimized)
+        // BASE45 ENCODER / DECODER (RFC 9285 - QR Alphanumeric Mode Optimized)
         const BASE45_CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
         const BASE45_MAP = new Map();
         for (let i = 0; i < BASE45_CHARSET.length; i++) BASE45_MAP.set(BASE45_CHARSET[i], i);
@@ -516,8 +499,6 @@
             return new Uint8Array(bytes);
         }
 
-
-        // Direct Deflate Raw Compression
         async function compressArrayBuffer(arrayBuf) {
             const cs = new CompressionStream('deflate-raw');
             const writer = cs.writable.getWriter();
@@ -536,8 +517,6 @@
             return new Blob([decompressedBuf], { type: mimeType });
         }
 
-
-        // METHOD 2: FOUNTAIN CODES / LUBY TRANSFORM (XOR PARITY DROPS) WITH UNIFORM BYTE LENGTH
         function xorBase45Chunks(chunk1, chunk2) {
             const b1 = decodeBase45(chunk1);
             const b2 = decodeBase45(chunk2);
@@ -578,12 +557,11 @@
             return { indices, data: xoredData };
         }
 
-        // PEELING DECODER FOR FOUNTAIN DROPS
         class PeelingDecoder {
             constructor(K) {
                 this.K = K;
-                this.resolved = new Map(); // idx -> Base45 data
-                this.equations = []; // { indices: Set, data: Base45 }
+                this.resolved = new Map();
+                this.equations = [];
             }
 
             addDrop(indicesArray, data) {
@@ -634,8 +612,6 @@
             }
         }
 
-
-        // METHOD 4: LOWEST ERROR CORRECTION LEVEL 'L' (7%) QR RENDERER
         const PureQREngine = (function() {
             return {
                 render: function(canvas, text) {
@@ -649,9 +625,12 @@
             };
         })();
 
+        // State Variables
+        let transferProtocol = 'p2p'; // 'p2p' or 'visual'
         let activeTab = 'media';
         let selectedFile = null;
         let fileMime = '';
+        let compressedPayloadBytes = null;
         let base45Chunks = [];
         let totalCompressedBytes = 0;
         let streamInterval = null;
@@ -659,14 +638,17 @@
         let frameDelay = 100;
         let qrScanner = null;
 
+        // PeerJS P2P Variables
+        let peer = null;
+        let peerConn = null;
+        let senderPeerId = null;
+
         let expectedTotal = 0;
         let expectedBytes = 0;
         let expectedMime = '';
         let expectedName = '';
         let peelingDecoder = null;
 
-
-        // UI DOM Elements
         const senderSection = document.getElementById('senderSection');
         const receiverSection = document.getElementById('receiverSection');
         const senderControls = document.getElementById('senderControls');
@@ -674,6 +656,9 @@
         const modeTitle = document.getElementById('modeTitle');
         const statusText = document.getElementById('statusText');
         const statusDot = document.getElementById('statusDot');
+
+        const p2pModeBtn = document.getElementById('p2pModeBtn');
+        const visualModeBtn = document.getElementById('visualModeBtn');
 
         const mobileSendBtn = document.getElementById('mobileSendBtn');
         const mobileReceiveBtn = document.getElementById('mobileReceiveBtn');
@@ -704,12 +689,12 @@
         const fileTypeTextDisplay = document.getElementById('fileTypeTextDisplay');
 
         const imgQualitySelect = document.getElementById('imgQualitySelect');
-        const gridModeSelect = document.getElementById('gridModeSelect');
+        const chunkSizeSelect = document.getElementById('chunkSizeSelect');
         const startStreamBtn = document.getElementById('startStreamBtn');
         const qrCard = document.getElementById('qrCard');
+        const qrCardTitle = document.getElementById('qrCardTitle');
         const frameInfoText = document.getElementById('frameInfoText');
-        const singleCanvasBox = document.getElementById('singleCanvasBox');
-        const gridCanvasBox = document.getElementById('gridCanvasBox');
+        const fpsContainer = document.getElementById('fpsContainer');
 
         const cameraSelect = document.getElementById('cameraSelect');
         const startScanBtn = document.getElementById('startScanBtn');
@@ -742,10 +727,29 @@
 
         modalCloseBtn.onclick = () => customModal.classList.add('hidden');
 
+        p2pModeBtn.onclick = () => {
+            transferProtocol = 'p2p';
+            p2pModeBtn.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-cyan-400 bg-slate-800/80 transition-all";
+            visualModeBtn.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition-all";
+            estTimeBadge.innerText = "Est. Instant";
+            updateStatus("WebRTC Direct P2P Mode Active", "ready");
+        };
+
+        visualModeBtn.onclick = () => {
+            transferProtocol = 'visual';
+            visualModeBtn.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-cyan-400 bg-slate-800/80 transition-all";
+            p2pModeBtn.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition-all";
+            if (base45Chunks.length > 0) {
+                const fps = 10;
+                estTimeBadge.innerText = `Est. ~${Math.round(base45Chunks.length / fps)} sec`;
+            }
+            updateStatus("Optical Visual Stream Mode Active", "ready");
+        };
+
         mediaTabBtn.onclick = () => {
             activeTab = 'media';
-            mediaTabBtn.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-cyan-400 bg-slate-800/80 transition-all";
-            textTabBtn.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition-all";
+            mediaTabBtn.className = "flex-1 py-1 rounded-md text-[11px] font-bold text-cyan-300 bg-slate-800 transition-all";
+            textTabBtn.className = "flex-1 py-1 rounded-md text-[11px] font-bold text-slate-400 hover:text-slate-200 transition-all";
             mediaContainer.classList.remove('hidden');
             textContainer.classList.add('hidden');
             imgQualityBox.classList.remove('hidden');
@@ -756,8 +760,8 @@
 
         textTabBtn.onclick = () => {
             activeTab = 'text';
-            textTabBtn.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-cyan-400 bg-slate-800/80 transition-all";
-            mediaTabBtn.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition-all";
+            textTabBtn.className = "flex-1 py-1 rounded-md text-[11px] font-bold text-cyan-300 bg-slate-800 transition-all";
+            mediaTabBtn.className = "flex-1 py-1 rounded-md text-[11px] font-bold text-slate-400 hover:text-slate-200 transition-all";
             textContainer.classList.remove('hidden');
             mediaContainer.classList.add('hidden');
             imgQualityBox.classList.add('hidden');
@@ -773,9 +777,10 @@
         function resetStats() {
             fileSizeNum.innerText = "0.00";
             fileSizeUnit.innerText = "KB";
-            estTimeBadge.innerText = "Est. ~0 sec";
+            estTimeBadge.innerText = "Est. Instant";
             statCircleBar.style.strokeDashoffset = "283";
             base45Chunks = [];
+            compressedPayloadBytes = null;
         }
 
         function setSendMode() {
@@ -792,7 +797,7 @@
             if (streamInterval) {
                 senderControls.classList.add('hidden');
                 qrCard.classList.remove('hidden');
-                updateStatus(`Broadcasting Fountain Stream`, "transmitting");
+                updateStatus(`Broadcasting Stream`, "transmitting");
             } else {
                 senderControls.classList.remove('hidden');
                 qrCard.classList.add('hidden');
@@ -838,10 +843,9 @@
             }
         };
 
-        gridModeSelect.onchange = () => {
-            if (streamInterval) startStreamAnimation();
+        chunkSizeSelect.onchange = () => {
+            if (compressedPayloadBytes) chunkPayloadBytes(compressedPayloadBytes);
         };
-
 
         async function handleTextSelection() {
             const val = textInputArea.value.trim();
@@ -854,8 +858,8 @@
             const encoder = new TextEncoder();
             const bytes = encoder.encode(val);
 
-            const compressedBytes = await compressArrayBuffer(bytes.buffer);
-            chunkPayloadBytes(compressedBytes);
+            compressedPayloadBytes = await compressArrayBuffer(bytes.buffer);
+            chunkPayloadBytes(compressedPayloadBytes);
         }
 
         function handleFileSelection(file) {
@@ -922,7 +926,6 @@
                 if (qualityVal === '1080') compressionRatio = 0.85;
                 else if (qualityVal === '800') compressionRatio = 0.70;
                 else if (qualityVal === '600') compressionRatio = 0.55;
-                else if (qualityVal === '400') compressionRatio = 0.40;
 
                 if (width > height && width > maxDim) { height *= maxDim / width; width = maxDim; }
                 else if (height > maxDim) { width *= maxDim / height; height = maxDim; }
@@ -940,8 +943,8 @@
                 const bytes = new Uint8Array(len);
                 for (let i = 0; i < len; i++) bytes[i] = binaryStr.charCodeAt(i);
 
-                const deflatedBytes = await compressArrayBuffer(bytes.buffer);
-                chunkPayloadBytes(deflatedBytes);
+                compressedPayloadBytes = await compressArrayBuffer(bytes.buffer);
+                chunkPayloadBytes(compressedPayloadBytes);
             };
             img.src = dataUrl;
         }
@@ -950,14 +953,12 @@
             updateStatus("Deflating Binary Payload...", "transmitting");
             const reader = new FileReader();
             reader.onload = async (e) => {
-                const deflatedBytes = await compressArrayBuffer(e.target.result);
-                chunkPayloadBytes(deflatedBytes);
+                compressedPayloadBytes = await compressArrayBuffer(e.target.result);
+                chunkPayloadBytes(compressedPayloadBytes);
             };
             reader.readAsArrayBuffer(fileObj);
         }
 
-
-        // Uniform Fixed Byte Chunking
         function chunkPayloadBytes(compressedBytes) {
             totalCompressedBytes = compressedBytes.byteLength;
             
@@ -971,7 +972,7 @@
                 fileSizeUnit.innerText = "KB";
             }
 
-            const CHUNK_BYTE_SIZE = 220;
+            const CHUNK_BYTE_SIZE = parseInt(chunkSizeSelect.value) || 220;
             const K = Math.ceil(totalCompressedBytes / CHUNK_BYTE_SIZE);
 
             base45Chunks = [];
@@ -983,11 +984,15 @@
                 base45Chunks.push(encodeBase45(chunkBuf));
             }
 
-            const fps = 10;
-            const estSeconds = Math.round(base45Chunks.length / fps);
-            estTimeBadge.innerText = `Est. ~${estSeconds} sec`;
+            if (transferProtocol === 'visual') {
+                const fps = 10;
+                const estSeconds = Math.round(base45Chunks.length / fps);
+                estTimeBadge.innerText = `Est. ~${estSeconds} sec`;
+            } else {
+                estTimeBadge.innerText = "Est. Instant";
+            }
 
-            updateStatus(`Ready! ${base45Chunks.length} Base45 Fountain Chunks (${Math.round(sizeInKB)} KB Payload)`, "active");
+            updateStatus(`Ready! Payload Prepared (${Math.round(sizeInKB)} KB Deflated)`, "active");
         }
 
         startStreamBtn.onclick = () => {
@@ -995,15 +1000,20 @@
                 showModal("No Text Entered", "Please enter or paste text to broadcast.");
                 return;
             }
-            if (activeTab === 'media' && (!selectedFile || base45Chunks.length === 0)) {
+            if (activeTab === 'media' && (!selectedFile || !compressedPayloadBytes)) {
                 showModal("No File Selected", "Please choose a photo, audio, or video file to broadcast.");
                 return;
             }
 
             senderControls.classList.add('hidden');
             qrCard.classList.remove('hidden');
-            startStreamAnimation();
-            updateStatus(`Broadcasting Fountain Stream`, "transmitting");
+
+            if (transferProtocol === 'p2p') {
+                initPeerJSSender();
+            } else {
+                startStreamAnimation();
+            }
+            updateStatus(`Broadcasting Stream`, "transmitting");
         };
 
         stopStreamBtn.onclick = () => {
@@ -1019,47 +1029,81 @@
             };
         });
 
+        // Initialize PeerJS for Direct WebRTC Transfers
+        function initPeerJSSender() {
+            qrCardTitle.innerText = "1-Scan Pair QR Code (WebRTC Direct P2P)";
+            fpsContainer.classList.add('hidden');
+            frameInfoText.innerText = "Scan once with receiver camera to connect";
+
+            if (peer) peer.destroy();
+            
+            // Random short Peer ID
+            senderPeerId = 'sonic-' + Math.random().toString(36).substring(2, 8);
+            peer = new Peer(senderPeerId);
+
+            peer.on('open', (id) => {
+                const rawName = activeTab === 'text' ? 'SONICDROP_NOTES.TXT' : selectedFile.name;
+                const metaName = encodeURIComponent(rawName.substring(0, 15)).toUpperCase();
+                const pairingPayload = `P2P:${id}:${totalCompressedBytes}:${fileMime}:${metaName}`;
+                
+                const canvasElem = document.getElementById('qrCanvas');
+                PureQREngine.render(canvasElem, pairingPayload);
+                updateStatus("Waiting for receiver to scan and connect...", "transmitting");
+            });
+
+            peer.on('connection', (conn) => {
+                peerConn = conn;
+                updateStatus("Receiver Connected! Sending payload...", "active");
+
+                conn.on('open', () => {
+                    const rawName = activeTab === 'text' ? 'SONICDROP_NOTES.TXT' : selectedFile.name;
+                    const metaName = encodeURIComponent(rawName.substring(0, 15)).toUpperCase();
+                    
+                    conn.send({
+                        type: 'META',
+                        totalBytes: totalCompressedBytes,
+                        mime: fileMime,
+                        name: metaName
+                    });
+
+                    // Send compressed buffer directly over WebRTC DataChannel
+                    conn.send({
+                        type: 'DATA',
+                        buffer: compressedPayloadBytes.buffer
+                    });
+
+                    updateStatus("Payload Transmitted Direct P2P! 🎉", "active");
+                });
+            });
+
+            peer.on('error', (err) => {
+                console.warn("PeerJS error, falling back to visual stream:", err);
+                startStreamAnimation();
+            });
+        }
 
         function startStreamAnimation() {
             if (streamInterval) clearInterval(streamInterval);
             currentDropIdx = 0;
 
+            qrCardTitle.innerText = "Fountain Optical Stream";
+            fpsContainer.classList.remove('hidden');
+            fpsContainer.classList.add('flex');
+
             const totalK = base45Chunks.length;
             const rawName = activeTab === 'text' ? 'SONICDROP_NOTES.TXT' : selectedFile.name;
             const metaName = encodeURIComponent(rawName.substring(0, 12)).toUpperCase();
-            const gridMode = gridModeSelect.value;
-
-            if (gridMode === '2x2') {
-                singleCanvasBox.classList.add('hidden');
-                gridCanvasBox.classList.remove('hidden');
-            } else {
-                singleCanvasBox.classList.remove('hidden');
-                gridCanvasBox.classList.add('hidden');
-            }
 
             const renderFrame = () => {
                 try {
-                    if (gridMode === '2x2') {
-                        // Render 4 tightly packed Fountain drops simultaneously
-                        for (let g = 0; g < 4; g++) {
-                            const drop = generateFountainDrop(base45Chunks, currentDropIdx + g);
-                            const indicesStr = drop.indices.join('+');
-                            const payload = `QRF:${totalK}:${totalCompressedBytes}:${indicesStr}:${fileMime}:${metaName}:${drop.data}`;
-                            const canvasElem = document.getElementById(`qrCanvas${g}`);
-                            PureQREngine.render(canvasElem, payload);
-                        }
-                        frameInfoText.innerText = `Fountain Drops ${currentDropIdx + 1}-${currentDropIdx + 4} (Total K=${totalK})`;
-                        currentDropIdx += 4;
-                    } else {
-                        const drop = generateFountainDrop(base45Chunks, currentDropIdx);
-                        const indicesStr = drop.indices.join('+');
-                        const payload = `QRF:${totalK}:${totalCompressedBytes}:${indicesStr}:${fileMime}:${metaName}:${drop.data}`;
-                        const canvasElem = document.getElementById('qrCanvas');
-                        PureQREngine.render(canvasElem, payload);
+                    const drop = generateFountainDrop(base45Chunks, currentDropIdx);
+                    const indicesStr = drop.indices.join('+');
+                    const payload = `QRF:${totalK}:${totalCompressedBytes}:${indicesStr}:${fileMime}:${metaName}:${drop.data}`;
+                    const canvasElem = document.getElementById('qrCanvas');
+                    PureQREngine.render(canvasElem, payload);
 
-                        frameInfoText.innerText = `Fountain Drop ${currentDropIdx + 1} (Total K=${totalK})`;
-                        currentDropIdx++;
-                    }
+                    frameInfoText.innerText = `Fountain Drop ${currentDropIdx + 1} (Total K=${totalK})`;
+                    currentDropIdx++;
                 } catch(e) {
                     console.error("Fountain render error:", e);
                 }
@@ -1074,12 +1118,15 @@
                 clearInterval(streamInterval);
                 streamInterval = null;
             }
+            if (peer) {
+                peer.destroy();
+                peer = null;
+            }
             qrCard.classList.add('hidden');
             senderControls.classList.remove('hidden');
             if (!receiverSection.classList.contains('hidden')) return;
             updateStatus("Select file or type text to broadcast", "ready");
         }
-
 
         startScanBtn.onclick = () => { openCameraScanner(); };
 
@@ -1094,24 +1141,67 @@
             chunkMatrix.innerHTML = '';
 
             const chosenFacingMode = cameraSelect.value;
-            updateStatus(`Scanner Active. Point camera at Fountain stream`, "transmitting");
+            updateStatus(`Scanner Active. Point camera at stream/pairing code`, "transmitting");
 
             if (typeof Html5Qrcode !== 'undefined') {
                 if (!qrScanner) qrScanner = new Html5Qrcode("qrReader");
 
-                // Full-frame scanner box for multi-drop capture
                 qrScanner.start(
                     { facingMode: chosenFacingMode },
-                    { fps: 30, qrbox: { width: 300, height: 300 }, aspectRatio: 1.0 },
+                    { fps: 30, qrbox: { width: 280, height: 280 }, aspectRatio: 1.0 },
                     onQrCodeScanned
                 ).catch((err) => {
-                    showModal("Camera Error", "Could not access camera. Please check camera permissions in browser.");
+                    showModal("Camera Error", "Could not access camera. Please check permissions.");
                     scannerBox.classList.add('hidden');
                 });
             }
         }
 
         function onQrCodeScanned(decodedText) {
+            // Handle WebRTC 1-Scan Direct Connection
+            if (decodedText.startsWith("P2P:")) {
+                const parts = decodedText.split(":");
+                if (parts.length < 5) return;
+                
+                const targetPeerId = parts[1];
+                const origBytes = parseInt(parts[2]);
+                const mime = parts[3].toLowerCase();
+                const fileName = decodeURIComponent(parts[4]);
+
+                stopScanner();
+                updateStatus("Pairing with sender via Direct WebRTC...", "transmitting");
+
+                progressTitle.innerText = "Connecting WebRTC Direct Stream...";
+                progressBarFill.style.width = "20%";
+                progressPercent.innerText = "20%";
+
+                if (peer) peer.destroy();
+                peer = new Peer();
+
+                peer.on('open', () => {
+                    const conn = peer.connect(targetPeerId);
+
+                    conn.on('open', () => {
+                        updateStatus("Connected! Receiving direct bytes...", "active");
+                        progressBarFill.style.width = "60%";
+                        progressPercent.innerText = "60%";
+                    });
+
+                    conn.on('data', async (data) => {
+                        if (data.type === 'DATA') {
+                            progressBarFill.style.width = "100%";
+                            progressPercent.innerText = "100%";
+                            
+                            const compressedBytes = new Uint8Array(data.buffer);
+                            const blob = await decompressBytesToBlob(compressedBytes, mime);
+                            displayReceivedBlob(blob, fileName, mime);
+                        }
+                    });
+                });
+                return;
+            }
+
+            // Handle Optical Fountain Stream
             if (!decodedText.startsWith("QRF:") && !decodedText.startsWith("QRD|")) return;
 
             let total = 0, origBytes = 0, indicesArray = [], mime = '', fileName = '', data = '';
@@ -1147,7 +1237,6 @@
 
             const isComplete = peelingDecoder.addDrop(indicesArray, data);
 
-            // Update Progress Matrix
             for (let i = 0; i < expectedTotal; i++) {
                 const box = document.getElementById(`chunk-box-${i}`);
                 if (box && peelingDecoder.resolved.has(i)) {
@@ -1178,7 +1267,6 @@
             }
         }
 
-
         async function reconstructFile() {
             updateStatus("Decompressing Base45 Fountain Payload...", "active");
 
@@ -1195,49 +1283,52 @@
                     : decodedBytes;
 
                 const blob = await decompressBytesToBlob(exactCompressedBytes, expectedMime);
-                const fileUrl = URL.createObjectURL(blob);
-                const kbSize = Math.round(blob.size / 1024);
-
-                receivedFileInfo.innerText = `Name: ${expectedName || 'SonicDrop_Payload'} | Size: ~${kbSize} KB`;
-
-                receivedImg.classList.add('hidden');
-                receivedAudio.classList.add('hidden');
-                receivedVideo.classList.add('hidden');
-                receivedTextBox.classList.add('hidden');
-
-                if (expectedMime === 'text/plain') {
-                    const textContent = await blob.text();
-                    scannedTextContent.value = textContent;
-                    receivedTextBox.classList.remove('hidden');
-                    downloadBtn.innerText = "💾 Save Text File";
-                } else if (expectedMime.startsWith('video/')) {
-                    receivedVideo.classList.remove('hidden');
-                    receivedVideo.src = fileUrl;
-                    downloadBtn.innerText = "💾 Save Video";
-                } else if (expectedMime.startsWith('audio/')) {
-                    receivedAudio.classList.remove('hidden');
-                    receivedAudio.src = fileUrl;
-                    downloadBtn.innerText = "💾 Save Audio";
-                } else {
-                    receivedImg.classList.remove('hidden');
-                    receivedImg.src = fileUrl;
-                    downloadBtn.innerText = "💾 Save Photo";
-                }
-
-                downloadBtn.href = fileUrl;
-                downloadBtn.download = expectedName || 'SonicDrop_Payload';
-
-                progressBox.classList.add('hidden');
-                receivedBox.classList.remove('hidden');
-
-                updateStatus("Transfer Successful!", "active");
+                displayReceivedBlob(blob, expectedName, expectedMime);
             } catch(err) {
                 console.error("Decompression Error:", err);
                 updateStatus("Error decompressing payload!", "error");
             }
         }
 
-        // Clipboard Copy Button
+        async function displayReceivedBlob(blob, fileName, mime) {
+            const fileUrl = URL.createObjectURL(blob);
+            const kbSize = Math.round(blob.size / 1024);
+
+            receivedFileInfo.innerText = `Name: ${fileName || 'SonicDrop_Payload'} | Size: ~${kbSize} KB`;
+
+            receivedImg.classList.add('hidden');
+            receivedAudio.classList.add('hidden');
+            receivedVideo.classList.add('hidden');
+            receivedTextBox.classList.add('hidden');
+
+            if (mime === 'text/plain') {
+                const textContent = await blob.text();
+                scannedTextContent.value = textContent;
+                receivedTextBox.classList.remove('hidden');
+                downloadBtn.innerText = "💾 Save Text File";
+            } else if (mime.startsWith('video/')) {
+                receivedVideo.classList.remove('hidden');
+                receivedVideo.src = fileUrl;
+                downloadBtn.innerText = "💾 Save Video";
+            } else if (mime.startsWith('audio/')) {
+                receivedAudio.classList.remove('hidden');
+                receivedAudio.src = fileUrl;
+                downloadBtn.innerText = "💾 Save Audio";
+            } else {
+                receivedImg.classList.remove('hidden');
+                receivedImg.src = fileUrl;
+                downloadBtn.innerText = "💾 Save Photo";
+            }
+
+            downloadBtn.href = fileUrl;
+            downloadBtn.download = fileName || 'SonicDrop_Payload';
+
+            progressBox.classList.add('hidden');
+            receivedBox.classList.remove('hidden');
+
+            updateStatus("Transfer Successful!", "active");
+        }
+
         copyTextBtn.onclick = () => {
             scannedTextContent.select();
             document.execCommand('copy');
