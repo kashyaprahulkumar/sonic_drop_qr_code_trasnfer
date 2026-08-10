@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SonicDrop Turbo - Direct P2P & Sonic Acoustic FSK Receiver</title>
+    <title>SonicDrop Turbo - Direct P2P & Sonic Acoustic Receiver</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Standalone QR Libraries & PeerJS for WebRTC Direct Transfer -->
@@ -22,7 +22,6 @@
             --pink-neon: #ff2a85;
             --pink-glow: rgba(255, 42, 133, 0.45);
             --purple-neon: #a855f7;
-            --purple-glow: rgba(168, 85, 247, 0.4);
             --emerald-neon: #10b981;
             --border-glass: rgba(255, 255, 255, 0.08);
             --border-highlight: rgba(0, 242, 254, 0.3);
@@ -150,31 +149,6 @@
             100% { top: 90%; }
         }
 
-        .stat-circle-svg {
-            transform: rotate(-90deg);
-        }
-
-        .stat-circle-bg {
-            stroke: rgba(255, 255, 255, 0.06);
-        }
-
-        .stat-circle-bar {
-            stroke: var(--cyan-neon);
-            stroke-dasharray: 283;
-            stroke-dashoffset: 283;
-            transition: stroke-dashoffset 0.8s ease;
-            filter: drop-shadow(0px 0px 8px var(--cyan-glow));
-        }
-
-        .badge-tag {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 2px 8px;
-            font-size: 10px;
-            font-weight: 700;
-        }
-
         .file-item-card {
             background: rgba(15, 23, 42, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -195,7 +169,7 @@
         <div class="text-center mb-6">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-950/20 mb-2">
                 <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-                <span class="text-xs font-bold text-cyan-400 uppercase tracking-widest mono-font">SonicDrop Turbo • Direct P2P + Acoustic Sound Pairing</span>
+                <span class="text-xs font-bold text-cyan-400 uppercase tracking-widest mono-font">SonicDrop Turbo • High Speed Transfer Hub</span>
             </div>
             <h1 class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-100 via-cyan-300 to-pink-500">
                 Turbo Transfer Hub
@@ -234,7 +208,7 @@
                             <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#00f2fe]"></div>
                             <span id="modeTitle" class="text-xs font-extrabold text-cyan-400 tracking-wider uppercase mono-font">SEND MODE ACTIVE</span>
                         </div>
-                        <span id="statusText" class="text-[11px] text-slate-400 font-medium truncate max-w-[200px]">Select files or enter text</span>
+                        <span id="statusText" class="text-[11px] text-slate-400 font-medium truncate max-w-[200px]">Ready</span>
                     </div>
 
                     <!-- SENDER SECTION -->
@@ -242,11 +216,11 @@
                         
                         <!-- Transfer Protocol Selector Tabs -->
                         <div class="flex bg-slate-950 p-1 rounded-xl border border-white/10">
-                            <button id="p2pModeBtn" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-cyan-400 bg-slate-800/80 transition-all">
-                                🚀 WebRTC Direct (Multi-File)
+                            <button id="p2pModeBtn" class="flex-1 py-2 rounded-lg text-xs font-bold text-cyan-400 bg-slate-800/80 transition-all">
+                                🚀 WebRTC Direct (WiFi)
                             </button>
-                            <button id="visualModeBtn" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition-all">
-                                ☔ Sonic + Optical Stream
+                            <button id="visualModeBtn" class="flex-1 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition-all">
+                                ⚡ QR code + Sonic
                             </button>
                         </div>
 
@@ -263,26 +237,27 @@
                         <!-- Sender Setup Controls -->
                         <div id="senderControls" class="space-y-4">
                             
-                            <!-- Circular Gauge & Time Estimate -->
-                            <div class="flex items-center justify-center my-2 relative">
-                                <div class="relative w-32 h-32 flex items-center justify-center">
-                                    <svg class="w-full h-full stat-circle-svg" viewBox="0 0 100 100">
-                                        <circle class="stat-circle-bg" cx="50" cy="50" r="42" stroke-width="6" fill="none" />
-                                        <circle id="statCircleBar" class="stat-circle-bar" cx="50" cy="50" r="42" stroke-width="6" fill="none" />
-                                    </svg>
-                                    <div class="absolute text-center flex flex-col items-center justify-center">
-                                        <span id="fileSizeNum" class="text-xl font-black text-cyan-400 mono-font leading-none">0.00</span>
-                                        <span id="fileSizeUnit" class="text-[10px] font-extrabold text-cyan-300 mt-0.5">KB</span>
-                                        <span id="fileCountBadge" class="text-[9px] text-pink-400 font-bold mt-1 uppercase tracking-tight">0 Files</span>
+                            <!-- TWIN METRICS: DATA SIZE (LEFT) & LIVE SPEED METER (RIGHT) -->
+                            <div class="grid grid-cols-2 gap-3 my-2">
+                                <!-- Left Box: Data Size -->
+                                <div class="bg-slate-950/80 border border-cyan-500/30 rounded-2xl p-3.5 text-center flex flex-col justify-center items-center shadow-inner">
+                                    <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Data Size</span>
+                                    <div class="flex items-baseline gap-1">
+                                        <span id="fileSizeNum" class="text-2xl font-black text-cyan-400 mono-font">0.00</span>
+                                        <span id="fileSizeUnit" class="text-xs font-bold text-cyan-300">KB</span>
                                     </div>
+                                    <span id="fileCountBadge" class="text-[10px] text-pink-400 font-bold mt-1 uppercase">0 Files</span>
                                 </div>
-                            </div>
 
-                            <!-- Speed Booster Feature Badges -->
-                            <div class="flex flex-wrap items-center justify-center gap-1.5 text-center">
-                                <span class="badge-tag text-cyan-300 border-cyan-500/30 bg-cyan-950/40">⚡ Base45 Alphanumeric</span>
-                                <span class="badge-tag text-purple-300 border-purple-500/30 bg-purple-950/40">🚀 WebRTC Batch Direct</span>
-                                <span class="badge-tag text-emerald-300 border-emerald-500/30 bg-emerald-950/40">🔊 Sonic Acoustic FSK Pairing</span>
+                                <!-- Right Box: Transfer Speed Meter -->
+                                <div class="bg-slate-950/80 border border-purple-500/30 rounded-2xl p-3.5 text-center flex flex-col justify-center items-center shadow-inner">
+                                    <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Transfer Speed</span>
+                                    <div class="flex items-baseline gap-1">
+                                        <span id="transferSpeedNum" class="text-2xl font-black text-emerald-400 mono-font">0.0</span>
+                                        <span id="transferSpeedUnit" class="text-xs font-bold text-emerald-300">KB/s</span>
+                                    </div>
+                                    <span id="transferEtaText" class="text-[10px] text-slate-400 font-bold mt-1">Idle</span>
+                                </div>
                             </div>
 
                             <!-- MEDIA DROPZONE CONTAINER -->
@@ -295,7 +270,7 @@
                                     </div>
                                     <div class="text-xs font-bold text-slate-200">TAP TO CHOOSE FILE(S)</div>
                                     <div id="fileNameText" class="text-[11px] text-slate-400 mt-1">
-                                        📷 Photos (RAW/HD) • 🎵 Audio • 🎬 Video • 📄 Documents
+                                        📷 Photos • 🎵 Audio • 🎬 Video • 📄 Documents
                                     </div>
                                 </div>
 
@@ -313,7 +288,7 @@
 
                             <!-- Options Panel -->
                             <div class="grid grid-cols-2 gap-2 text-left">
-                                <!-- Photo Quality Box (Hidden automatically in WebRTC Direct mode) -->
+                                <!-- Photo Stream Quality Selector -->
                                 <div id="imgQualityBox" class="hidden bg-slate-900/60 border border-white/10 rounded-xl p-2.5">
                                     <label for="imgQualitySelect" class="block text-[10px] font-bold text-slate-400 mb-1">🖼️ Photo Stream Quality</label>
                                     <select id="imgQualitySelect" class="w-full bg-slate-950 text-cyan-400 font-bold text-xs p-1.5 rounded-lg border border-white/10 outline-none">
@@ -321,17 +296,13 @@
                                         <option value="1080">1080p Full HD</option>
                                         <option value="800" selected>800p HD (Recommended)</option>
                                         <option value="600">600p Fast Transfer</option>
+                                        <option value="400">400p Ultra Fast</option>
                                     </select>
                                 </div>
 
-                                <div id="webrtcInfoBox" class="bg-slate-900/60 border border-cyan-500/30 rounded-xl p-2.5 flex flex-col justify-center">
-                                    <span class="text-[10px] font-bold text-cyan-400">⚡ WebRTC Direct Transfer</span>
-                                    <span class="text-[9px] text-slate-400 mt-0.5">Full Uncompressed Quality (RAW)</span>
-                                </div>
-
-                                <div id="sonicSoundBox" class="bg-slate-900/60 border border-white/10 rounded-xl p-2.5 flex flex-col justify-between">
-                                    <label class="block text-[10px] font-bold text-slate-400 mb-1">🔊 Sonic Tone Broadcast</label>
-                                    <button id="sonicToggleBtn" class="w-full py-1 bg-cyan-500/20 text-cyan-300 font-extrabold text-[11px] rounded-lg border border-cyan-500/40 transition-colors">
+                                <div id="sonicSoundBox" class="bg-slate-900/60 border border-white/10 rounded-xl p-2.5 flex flex-col justify-between col-span-2">
+                                    <label class="block text-[10px] font-bold text-slate-400 mb-1">🔊 Sonic Sound Broadcast</label>
+                                    <button id="sonicToggleBtn" class="w-full py-1.5 bg-cyan-500/20 text-cyan-300 font-extrabold text-[11px] rounded-lg border border-cyan-500/40 transition-colors">
                                         🔊 Sonic Sound ON
                                     </button>
                                 </div>
@@ -345,10 +316,16 @@
                         <!-- Center Stream QR Display -->
                         <div id="qrCard" class="hidden bg-white rounded-2xl p-4 text-center shadow-2xl animate-fade-in my-auto">
                             <div class="flex items-center justify-between mb-2">
-                                <span id="qrCardTitle" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">1-Scan Pair QR Code</span>
+                                <span id="qrCardTitle" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Scan QR OR Sonic Pair</span>
                                 <button id="stopStreamBtn" class="px-2.5 py-1 bg-rose-100 hover:bg-rose-200 text-rose-700 text-[10px] font-extrabold rounded-lg transition-colors flex items-center gap-1">
                                     ✕ Stop / Change Batch
                                 </button>
+                            </div>
+
+                            <!-- Display 6-Digit Manual Pair Code -->
+                            <div id="numericPinDisplayBox" class="bg-slate-900 text-cyan-300 rounded-xl p-2 mb-2 border border-cyan-500/30">
+                                <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Manual Pairing PIN</span>
+                                <span id="manualPinCodeText" class="text-2xl font-black tracking-widest mono-font text-cyan-400">--- ---</span>
                             </div>
 
                             <!-- Canvas Container -->
@@ -356,7 +333,7 @@
                                 <canvas id="qrCanvas" width="280" height="280" class="mx-auto rounded-lg max-w-[280px] w-full h-auto"></canvas>
                             </div>
 
-                            <div id="frameInfoText" class="text-sm font-extrabold text-cyan-600 mono-font">Scan QR OR hold near Receiver Mic</div>
+                            <div id="frameInfoText" class="text-xs font-extrabold text-cyan-600 mono-font">Scan QR OR enter Manual PIN</div>
 
                             <div id="fpsContainer" class="hidden justify-center gap-1.5 mt-3">
                                 <button class="fps-btn px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700" data-fps="200">5 FPS</button>
@@ -384,11 +361,22 @@
                             </div>
                         </div>
 
+                        <!-- MANUAL NUMERIC PIN ENTRY BOX -->
+                        <div class="bg-slate-950/80 border border-pink-500/30 rounded-xl p-3 space-y-2">
+                            <label class="block text-[10px] font-bold text-pink-400 uppercase tracking-wider">⌨️ Manual Pairing by PIN</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="manualPinInput" maxLength="6" placeholder="Enter 6-digit PIN..." class="flex-1 bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-pink-300 font-bold mono-font tracking-widest outline-none focus:border-pink-500">
+                                <button id="connectPinBtn" class="px-4 py-2 bg-pink-500 hover:bg-pink-400 text-slate-950 font-black text-xs rounded-lg uppercase tracking-wider transition-colors flex-shrink-0">
+                                    Connect
+                                </button>
+                            </div>
+                        </div>
+
                         <!-- LIVE SONIC AUDIO SPECTRUM VISUALIZER CANVAS -->
                         <div id="sonicVisualizerBox" class="bg-slate-950/80 border border-pink-500/30 rounded-xl p-2 text-center space-y-1">
                             <div class="flex items-center justify-between text-[10px] font-bold text-pink-400 px-1">
-                                <span>🎙️ SONIC ACOUSTIC SOUND PAIRING</span>
-                                <span id="sonicFreqLabel" class="mono-font text-emerald-400">Listening for Tones...</span>
+                                <span>🎙️ ACOUSTIC SOUND PAIRING</span>
+                                <span id="sonicFreqLabel" class="mono-font text-emerald-400">Listening...</span>
                             </div>
                             <canvas id="sonicSpecCanvas" width="300" height="36" class="w-full h-9 bg-slate-900/90 rounded-lg border border-white/10"></canvas>
                         </div>
@@ -453,7 +441,7 @@
 
     </div>
 
-    <!-- Custom Modal Warning Notice -->
+    <!-- Custom Modal Notice -->
     <div id="customModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-cyan-500/40 rounded-2xl max-w-sm w-full p-5 text-center shadow-2xl space-y-3">
             <div class="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center mx-auto text-amber-400 text-xl">
@@ -470,7 +458,6 @@
     </div>
 
     <script>
-        // BASE45 ENCODER / DECODER (RFC 9285 - QR Alphanumeric Mode Optimized)
         const BASE45_CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
         const BASE45_MAP = new Map();
         for (let i = 0; i < BASE45_CHARSET.length; i++) BASE45_MAP.set(BASE45_CHARSET[i], i);
@@ -628,14 +615,13 @@
             }
         }
 
-        // Sonic Audio FSK Data & Pairing Engine
         let audioCtx = null;
         let sonicEnabled = true;
         let sonicLoopTimer = null;
 
-        const ACOUSTIC_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
+        const ACOUSTIC_ALPHABET = "0123456789";
         const FREQ_BASE = 1200;
-        const FREQ_STEP = 70; // 70 Hz step for distinct FFT bin separation
+        const FREQ_STEP = 90; // 90 Hz step for distinct FFT bin separation
         const PREAMBLE_FREQ = 950;
 
         function playSonicTone(freq, duration = 0.12) {
@@ -649,7 +635,6 @@
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
                 
-                // Clear, crisp acoustic tone burst
                 gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
                 gain.gain.linearRampToValueAtTime(0.35, audioCtx.currentTime + 0.01);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
@@ -661,19 +646,19 @@
             } catch(e) {}
         }
 
-        // Broadcast a string via Acoustic Sound FSK (e.g., Peer ID "3a8f2k")
+        // Broadcast a 6-digit numeric string via Acoustic Sound FSK (e.g., "849201")
         function broadcastSonicPairingCode(codeStr) {
             if (!sonicEnabled) return;
             stopSonicPairBroadcast();
 
-            const cleanStr = codeStr.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 6);
+            const cleanStr = codeStr.replace(/[^0-9]/g, '').substring(0, 6);
             let index = 0;
 
             const transmitStep = () => {
                 if (!sonicEnabled) return;
                 
                 if (index === 0) {
-                    playSonicTone(PREAMBLE_FREQ, 0.18); // Long preamble marker
+                    playSonicTone(PREAMBLE_FREQ, 0.18);
                 } else {
                     const char = cleanStr[index - 1];
                     const charIdx = ACOUSTIC_ALPHABET.indexOf(char);
@@ -685,7 +670,7 @@
 
                 index++;
                 if (index > cleanStr.length) {
-                    index = 0; // Repeat cycle
+                    index = 0;
                 }
             };
 
@@ -723,7 +708,7 @@
                 });
                 const source = sonicRecContext.createMediaStreamSource(sonicMicStream);
                 sonicAnalyser = sonicRecContext.createAnalyser();
-                sonicAnalyser.fftSize = 2048; // High resolution FFT for precise frequency detection
+                sonicAnalyser.fftSize = 2048;
                 sonicAnalyser.smoothingTimeConstant = 0.2;
                 source.connect(sonicAnalyser);
 
@@ -731,7 +716,7 @@
                 accumulatedSonicChars = "";
                 drawSonicSpectrum();
             } catch(e) {
-                console.warn("Sonic Listener Mic Permission Denied / Error:", e);
+                console.warn("Sonic Listener Mic Permission Denied:", e);
                 const label = document.getElementById('sonicFreqLabel');
                 if (label) label.innerText = "Mic Offline / Access Denied";
             }
@@ -753,10 +738,10 @@
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                 const sampleRate = sonicRecContext.sampleRate || 48000;
-                const binWidth = sampleRate / sonicAnalyser.fftSize; // ~23.4 Hz per bin
+                const binWidth = sampleRate / sonicAnalyser.fftSize;
 
                 const minBin = Math.floor(850 / binWidth);
-                const maxBinSearch = Math.ceil(3800 / binWidth);
+                const maxBinSearch = Math.ceil(2800 / binWidth);
 
                 let maxVal = 0;
                 let maxBin = -1;
@@ -779,12 +764,10 @@
 
                 const labelElem = document.getElementById('sonicFreqLabel');
 
-                // Tone Detection with High Precision FFT Peak Slicing
                 if (maxVal > 45 && maxBin > 0) {
                     const detectedFreqHz = Math.round(maxBin * binWidth);
                     const now = Date.now();
 
-                    // Check for Preamble Tone (950 Hz)
                     if (Math.abs(detectedFreqHz - PREAMBLE_FREQ) < 45) {
                         if (now - sonicPreambleDetectedTime > 600) {
                             accumulatedSonicChars = "";
@@ -792,7 +775,6 @@
                             sonicLastCharTime = now;
                         }
                     } else if (now - sonicPreambleDetectedTime < 4000 && now - sonicLastCharTime > 130) {
-                        // Decode FSK Character Frequency
                         const charIdx = Math.round((detectedFreqHz - FREQ_BASE) / FREQ_STEP);
                         if (charIdx >= 0 && charIdx < ACOUSTIC_ALPHABET.length) {
                             const targetFreq = FREQ_BASE + (charIdx * FREQ_STEP);
@@ -804,14 +786,14 @@
                                     sonicLastCharTime = now;
 
                                     if (labelElem) {
-                                        labelElem.innerText = `🎵 Tones: [ ${accumulatedSonicChars.toUpperCase()} ] (${detectedFreqHz} Hz)`;
+                                        labelElem.innerText = `🎵 Code: [ ${accumulatedSonicChars} ] (${detectedFreqHz} Hz)`;
                                     }
 
                                     if (accumulatedSonicChars.length === 6 && !sonicPairTriggered) {
                                         sonicPairTriggered = true;
                                         const peerIdStr = `sonic-${accumulatedSonicChars}`;
                                         if (labelElem) {
-                                            labelElem.innerText = `🎉 Sound Paired! Code: ${accumulatedSonicChars.toUpperCase()}`;
+                                            labelElem.innerText = `🎉 Sound Paired! Code: ${accumulatedSonicChars}`;
                                         }
                                         autoConnectViaSonicSound(peerIdStr);
                                     }
@@ -819,7 +801,7 @@
                             }
                         }
                     } else if (!sonicPairTriggered && labelElem && accumulatedSonicChars.length < 6) {
-                        labelElem.innerText = `🎵 Tone: ${detectedFreqHz} Hz | Code: [ ${accumulatedSonicChars.toUpperCase()} ]`;
+                        labelElem.innerText = `🎵 Code: [ ${accumulatedSonicChars} ]`;
                     }
                 } else if (!sonicPairTriggered && labelElem && accumulatedSonicChars.length === 0) {
                     labelElem.innerText = "Listening for Acoustic Tone Pairing...";
@@ -842,9 +824,10 @@
 
         function autoConnectViaSonicSound(targetPeerId) {
             stopScanner();
-            updateStatus(`Sound Wave Paired! Connecting WebRTC (${targetPeerId})...`, "transmitting");
+            stopSonicReceiver(); // Stop listener once paired!
+            updateStatus(`Paired! Connecting WebRTC (${targetPeerId})...`, "transmitting");
 
-            progressTitle.innerText = "Acoustic Pairing Success! Connecting Direct Stream...";
+            progressTitle.innerText = "Pairing Success! Connecting Direct Stream...";
             progressBarFill.style.width = "25%";
             progressPercent.innerText = "25%";
 
@@ -855,7 +838,7 @@
                 const conn = peer.connect(targetPeerId);
 
                 conn.on('open', () => {
-                    updateStatus("Connected via Sound Wave! Receiving batch files...", "active");
+                    updateStatus("Connected! Receiving batch files...", "active");
                     progressBarFill.style.width = "50%";
                     progressPercent.innerText = "50%";
                 });
@@ -879,10 +862,9 @@
             };
         })();
 
-        // State Variables
         let transferProtocol = 'p2p';
         let activeTab = 'media';
-        let selectedFiles = []; // Array of File objects
+        let selectedFiles = [];
         let fileMime = '';
         let compressedPayloadBytes = null;
         let base45Chunks = [];
@@ -902,6 +884,10 @@
         let expectedMime = '';
         let expectedName = '';
         let peelingDecoder = null;
+
+        // Speed Meter Tracker
+        let transferStartTime = 0;
+        let totalBytesTransferred = 0;
 
         const senderSection = document.getElementById('senderSection');
         const receiverSection = document.getElementById('receiverSection');
@@ -931,14 +917,20 @@
         const fileSizeNum = document.getElementById('fileSizeNum');
         const fileSizeUnit = document.getElementById('fileSizeUnit');
         const fileCountBadge = document.getElementById('fileCountBadge');
-        const statCircleBar = document.getElementById('statCircleBar');
         const fileListContainer = document.getElementById('fileListContainer');
 
+        const transferSpeedNum = document.getElementById('transferSpeedNum');
+        const transferSpeedUnit = document.getElementById('transferSpeedUnit');
+        const transferEtaText = document.getElementById('transferEtaText');
+
         const imgQualityBox = document.getElementById('imgQualityBox');
-        const webrtcInfoBox = document.getElementById('webrtcInfoBox');
         const imgQualitySelect = document.getElementById('imgQualitySelect');
         const sonicToggleBtn = document.getElementById('sonicToggleBtn');
         const sonicListenerBtn = document.getElementById('sonicListenerBtn');
+
+        const manualPinInput = document.getElementById('manualPinInput');
+        const connectPinBtn = document.getElementById('connectPinBtn');
+        const manualPinCodeText = document.getElementById('manualPinCodeText');
 
         const startStreamBtn = document.getElementById('startStreamBtn');
         const qrCard = document.getElementById('qrCard');
@@ -977,8 +969,8 @@
             sonicEnabled = !sonicEnabled;
             sonicToggleBtn.innerText = sonicEnabled ? "🔊 Sonic Sound ON" : "🔇 Sonic Sound OFF";
             sonicToggleBtn.className = sonicEnabled 
-                ? "w-full py-1 bg-cyan-500/20 text-cyan-300 font-extrabold text-[11px] rounded-lg border border-cyan-500/40 transition-colors"
-                : "w-full py-1 bg-slate-800 text-slate-400 font-extrabold text-[11px] rounded-lg border border-white/10 transition-colors";
+                ? "w-full py-1.5 bg-cyan-500/20 text-cyan-300 font-extrabold text-[11px] rounded-lg border border-cyan-500/40 transition-colors"
+                : "w-full py-1.5 bg-slate-800 text-slate-400 font-extrabold text-[11px] rounded-lg border border-white/10 transition-colors";
             
             if (!sonicEnabled) stopSonicPairBroadcast();
         };
@@ -996,28 +988,28 @@
 
         p2pModeBtn.onclick = () => {
             transferProtocol = 'p2p';
-            p2pModeBtn.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-cyan-400 bg-slate-800/80 transition-all";
-            visualModeBtn.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition-all";
+            p2pModeBtn.className = "flex-1 py-2 rounded-lg text-xs font-bold text-cyan-400 bg-slate-800/80 transition-all";
+            visualModeBtn.className = "flex-1 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition-all";
             
-            // In WebRTC mode, Photo Quality is not needed (always RAW)
             imgQualityBox.classList.add('hidden');
-            webrtcInfoBox.classList.remove('hidden');
+            sonicSoundBox.classList.remove('col-span-2');
+            sonicSoundBox.classList.add('col-span-1');
             
-            updateStatus("WebRTC Direct Multi-File Mode Active", "ready");
+            updateStatus("WebRTC Direct Mode Active", "ready");
         };
 
         visualModeBtn.onclick = () => {
             transferProtocol = 'visual';
-            visualModeBtn.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-cyan-400 bg-slate-800/80 transition-all";
-            p2pModeBtn.className = "flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition-all";
+            visualModeBtn.className = "flex-1 py-2 rounded-lg text-xs font-bold text-cyan-400 bg-slate-800/80 transition-all";
+            p2pModeBtn.className = "flex-1 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition-all";
             
-            // In Visual mode, show Photo Quality if Media tab is active
-            webrtcInfoBox.classList.add('hidden');
             if (activeTab === 'media') {
                 imgQualityBox.classList.remove('hidden');
+                sonicSoundBox.classList.remove('col-span-2');
+                sonicSoundBox.classList.add('col-span-1');
             }
 
-            updateStatus("Sonic + Optical Stream Mode Active", "ready");
+            updateStatus("QR code + Sonic Mode Active", "ready");
         };
 
         mediaTabBtn.onclick = () => {
@@ -1045,11 +1037,17 @@
             if (activeTab === 'text') handleTextSelection();
         };
 
+        imgQualitySelect.onchange = () => {
+            if (selectedFiles.length > 0) processBatchFiles();
+        };
+
         function resetStats() {
             fileSizeNum.innerText = "0.00";
             fileSizeUnit.innerText = "KB";
             fileCountBadge.innerText = "0 Files";
-            statCircleBar.style.strokeDashoffset = "283";
+            transferSpeedNum.innerText = "0.0";
+            transferSpeedUnit.innerText = "KB/s";
+            transferEtaText.innerText = "Idle";
             base45Chunks = [];
             compressedPayloadBytes = null;
             selectedFiles = [];
@@ -1077,7 +1075,7 @@
             } else {
                 senderControls.classList.remove('hidden');
                 qrCard.classList.add('hidden');
-                updateStatus("Select files or type text to broadcast", "ready");
+                updateStatus("Ready", "ready");
             }
         }
 
@@ -1094,7 +1092,7 @@
             stopStream();
             if (sonicListening) startSonicReceiver();
 
-            updateStatus("Open camera scanner or hold near acoustic tone", "ready");
+            updateStatus("Open camera, enter PIN, or listen for sonic tone", "ready");
         }
 
         mobileSendBtn.onclick = setSendMode;
@@ -1175,20 +1173,18 @@
             if (selectedFiles.length === 0) return;
 
             let totalBytesSum = selectedFiles.reduce((acc, f) => acc + f.size, 0);
-            statCircleBar.style.strokeDashoffset = "50";
             fileCountBadge.innerText = `${selectedFiles.length} File${selectedFiles.length > 1 ? 's' : ''}`;
 
-            const sizeInKB = totalBytesSum / 1024;
-            const sizeInMB = sizeInKB / 1024;
-            if (sizeInMB >= 1) {
-                fileSizeNum.innerText = sizeInMB.toFixed(2);
-                fileSizeUnit.innerText = "MB";
-            } else {
-                fileSizeNum.innerText = sizeInKB < 1 ? sizeInKB.toFixed(2) : Math.round(sizeInKB);
-                fileSizeUnit.innerText = "KB";
-            }
-
-            if (selectedFiles.length === 1) {
+            // Check if photo quality scaling applies in Visual mode
+            if (transferProtocol === 'visual' && selectedFiles.length === 1 && selectedFiles[0].type.startsWith('image/') && imgQualitySelect.value !== 'raw') {
+                const scaledDataUrl = await resizeImageToQuality(selectedFiles[0], parseInt(imgQualitySelect.value));
+                const res = await fetch(scaledDataUrl);
+                const buf = await res.arrayBuffer();
+                fileMime = 'IMAGE/JPEG';
+                compressedPayloadBytes = await compressArrayBuffer(buf);
+                totalBytesSum = buf.byteLength;
+                chunkPayloadBytes(compressedPayloadBytes);
+            } else if (selectedFiles.length === 1) {
                 const primaryFile = selectedFiles[0];
                 fileMime = (primaryFile.type || getMimeFromExtension(primaryFile.name)).toUpperCase();
                 
@@ -1204,6 +1200,38 @@
                 compressedPayloadBytes = await compressArrayBuffer(packedBuffer);
                 chunkPayloadBytes(compressedPayloadBytes);
             }
+
+            const sizeInKB = totalBytesSum / 1024;
+            const sizeInMB = sizeInKB / 1024;
+            if (sizeInMB >= 1) {
+                fileSizeNum.innerText = sizeInMB.toFixed(2);
+                fileSizeUnit.innerText = "MB";
+            } else {
+                fileSizeNum.innerText = sizeInKB < 1 ? sizeInKB.toFixed(2) : Math.round(sizeInKB);
+                fileSizeUnit.innerText = "KB";
+            }
+        }
+
+        function resizeImageToQuality(file, maxDim) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let w = img.width, h = img.height;
+                        if (w > h && w > maxDim) { h *= maxDim / w; w = maxDim; }
+                        else if (h > maxDim) { w *= maxDim / h; h = maxDim; }
+
+                        canvas.width = w; canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', 0.8));
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
         }
 
         async function createPackedBatchBuffer(files) {
@@ -1265,7 +1293,7 @@
                 base45Chunks.push(encodeBase45(chunkBuf));
             }
 
-            updateStatus(`Ready! Batch Payload Prepared (${Math.round(totalCompressedBytes/1024)} KB Deflated)`, "active");
+            updateStatus(`Ready (${Math.round(totalCompressedBytes/1024)} KB)`, "active");
         }
 
         startStreamBtn.onclick = () => {
@@ -1286,7 +1314,7 @@
             } else {
                 startStreamAnimation();
             }
-            updateStatus(`Broadcasting Stream / Sound Pairing Code`, "transmitting");
+            updateStatus(`Broadcasting Stream / PIN`, "transmitting");
         };
 
         stopStreamBtn.onclick = () => {
@@ -1303,15 +1331,17 @@
         });
 
         function initPeerJSSender() {
-            qrCardTitle.innerText = "1-Scan QR OR Acoustic Sound Wave Pairing";
+            qrCardTitle.innerText = "Scan QR OR Enter Manual PIN";
             fpsContainer.classList.add('hidden');
-            frameInfoText.innerText = "Scan QR with Camera OR hold Receiver mic close to speaker";
+            frameInfoText.innerText = "Scan QR Code OR enter 6-Digit PIN on Receiver";
 
             if (peer) peer.destroy();
             
-            // Generate a 6-character clean alphanumeric Peer ID for acoustic compatibility
-            const shortId = Math.random().toString(36).substring(2, 8);
-            senderPeerId = 'sonic-' + shortId;
+            // Generate a 6-digit numeric PIN for simple manual pairing
+            const numericPin = Math.floor(100000 + Math.random() * 900000).toString();
+            senderPeerId = 'sonic-' + numericPin;
+            manualPinCodeText.innerText = `${numericPin.substring(0,3)} ${numericPin.substring(3,6)}`;
+
             peer = new Peer(senderPeerId);
 
             peer.on('open', (id) => {
@@ -1323,16 +1353,23 @@
                 const canvasElem = document.getElementById('qrCanvas');
                 PureQREngine.render(canvasElem, pairingPayload);
 
-                // Continuously broadcast the 6-character short ID over sound wave frequencies!
-                broadcastSonicPairingCode(shortId);
+                // Continuously broadcast the numeric PIN over sound wave frequencies
+                broadcastSonicPairingCode(numericPin);
 
-                updateStatus("Waiting for receiver (via Camera QR or Sonic Tone)...", "transmitting");
+                updateStatus("Waiting for receiver...", "transmitting");
             });
 
             peer.on('connection', (conn) => {
                 peerConn = conn;
-                stopSonicPairBroadcast(); // Stop acoustic tones once paired!
+                
+                // CRITICAL REQUIREMENT 5: Turn off acoustic tones AND hide QR code once paired!
+                stopSonicPairBroadcast();
+                qrCard.classList.add('hidden');
+                senderControls.classList.remove('hidden');
+
                 updateStatus("Receiver Connected! Streaming batch payload...", "active");
+                transferStartTime = Date.now();
+                totalBytesTransferred = 0;
 
                 conn.on('open', async () => {
                     if (activeTab === 'text') {
@@ -1359,6 +1396,9 @@
                                 fileIndex: i,
                                 buffer: fileBuf
                             });
+
+                            totalBytesTransferred += file.size;
+                            updateLiveSpeedMeter(totalBytesTransferred, totalCompressedBytes || totalBytesTransferred);
                         }
                     }
 
@@ -1376,7 +1416,7 @@
             if (streamInterval) clearInterval(streamInterval);
             currentDropIdx = 0;
 
-            qrCardTitle.innerText = "Sonic + Fountain Optical Stream";
+            qrCardTitle.innerText = "QR code + Sonic Stream";
             fpsContainer.classList.remove('hidden');
             fpsContainer.classList.add('flex');
 
@@ -1419,8 +1459,18 @@
             qrCard.classList.add('hidden');
             senderControls.classList.remove('hidden');
             if (!receiverSection.classList.contains('hidden')) return;
-            updateStatus("Select files or type text to broadcast", "ready");
+            updateStatus("Ready", "ready");
         }
+
+        connectPinBtn.onclick = () => {
+            const rawPin = manualPinInput.value.trim().replace(/\s/g, '');
+            if (rawPin.length !== 6 || isNaN(rawPin)) {
+                showModal("Invalid PIN", "Please enter a valid 6-digit numeric PIN.");
+                return;
+            }
+            const targetPeerId = `sonic-${rawPin}`;
+            autoConnectViaSonicSound(targetPeerId);
+        };
 
         startScanBtn.onclick = () => { openCameraScanner(); };
 
@@ -1437,7 +1487,7 @@
             receivedBatchList.innerHTML = '';
 
             const chosenFacingMode = cameraSelect.value;
-            updateStatus(`Scanner & Mic Active. Point camera OR listen for sound tone`, "transmitting");
+            updateStatus(`Scanner Active. Point camera OR enter PIN`, "transmitting");
 
             if (sonicListening) startSonicReceiver();
 
@@ -1449,7 +1499,7 @@
                     { fps: 30, qrbox: { width: 280, height: 280 }, aspectRatio: 1.0 },
                     onQrCodeScanned
                 ).catch((err) => {
-                    showModal("Camera Notice", "Camera disabled or in use. Sonic Audio Sound Pairing is active!");
+                    showModal("Camera Notice", "Camera disabled or in use. You can use manual 6-Digit PIN pairing!");
                     scannerBox.classList.add('hidden');
                 });
             }
@@ -1496,6 +1546,8 @@
                 expectedName = fileName;
                 peelingDecoder = new PeelingDecoder(total);
                 createMatrixGrid(total);
+                transferStartTime = Date.now();
+                totalBytesTransferred = 0;
             }
 
             const isComplete = peelingDecoder.addDrop(indicesArray, data);
@@ -1512,12 +1564,36 @@
 
             progressBarFill.style.width = `${percent}%`;
             progressPercent.innerText = `${percent}%`;
-            progressTitle.innerText = `Captured: ${receivedCount} / ${expectedTotal} Fountain Chunks`;
+            progressTitle.innerText = `Captured: ${receivedCount} / ${expectedTotal} Chunks`;
+
+            totalBytesTransferred = Math.round((receivedCount / expectedTotal) * expectedBytes);
+            updateLiveSpeedMeter(totalBytesTransferred, expectedBytes);
 
             if (isComplete || receivedCount === expectedTotal) {
                 stopScanner();
                 reconstructFile();
             }
+        }
+
+        function updateLiveSpeedMeter(transferredBytes, totalBytes) {
+            const elapsedSec = (Date.now() - transferStartTime) / 1000;
+            if (elapsedSec <= 0) return;
+
+            const bytesPerSec = transferredBytes / elapsedSec;
+            const kbPerSec = bytesPerSec / 1024;
+            const mbPerSec = kbPerSec / 1024;
+
+            if (mbPerSec >= 1) {
+                transferSpeedNum.innerText = mbPerSec.toFixed(1);
+                transferSpeedUnit.innerText = "MB/s";
+            } else {
+                transferSpeedNum.innerText = kbPerSec.toFixed(1);
+                transferSpeedUnit.innerText = "KB/s";
+            }
+
+            const remainingBytes = Math.max(0, totalBytes - transferredBytes);
+            const remainingSec = bytesPerSec > 0 ? Math.ceil(remainingBytes / bytesPerSec) : 0;
+            transferEtaText.innerText = remainingSec > 0 ? `~${remainingSec}s left` : 'Transmitting';
         }
 
         function handleReceivedP2PData(data) {
@@ -1552,7 +1628,7 @@
         }
 
         async function reconstructFile() {
-            updateStatus("Decompressing Base45 Fountain Payload...", "active");
+            updateStatus("Decompressing Payload...", "active");
 
             try {
                 let fullBase45Str = "";
